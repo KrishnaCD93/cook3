@@ -9,41 +9,82 @@ contract Cookbook {
     // Each recipe is a map of ingredients and methods.
     // Users can tip each other for the recipe. 
     uint256 totalRecipes;
+    uint256 totalTips;
+    bool public locked;
 
-    event NewRecipe(address indexed from, uint256 timestamp, string name, string recipeId, string description,
-        string image, string video, string instructions);
+    event NewRecipe(address indexed from, uint256 timestamp, string recipeId);
+
+    event RecipeTip(address indexed from, uint256 timestamp, string recipeId, uint256 amount);
 
     struct Recipe {
         address owner;
         string recipeId;
-        string name;
-        string description;
-        string imageUrl;
-        string videoUrl;
-        string instructions;
+        string[] comments;
         uint256 timestamp;
         uint256 tips;
-        uint256 totalTips;
     }
 
     Recipe[] recipes;
 
-    constructor () {
+    constructor () payable {
         console.log("Cookbook constructor");
     }
 
-    function addRecipe(string memory _name, string memory _recipeId, string memory _imageUrl,
-    string memory _videoUrl, string memory _instructions, string memory _description) public {
+    modifier noReentrancy() {
+        require(!locked, "No reentrancy");
+
+        locked = true;
+        _;
+        locked = false;
+    }
+
+    // Add a new recipe to the cookbook.
+    function addRecipe(string memory _recipeId) public noReentrancy {
         totalRecipes++;
-        console.log("Recipe added: %s w/ recipeID: %s, by %s:", _name, _recipeId, msg.sender);
+        console.log("Recipe added w/ recipeID: %s, by %s:", _recipeId, msg.sender);
 
         // Store recipe data in an array
-        recipes.push(Recipe(msg.sender, _name, _recipeId, _imageUrl, _videoUrl, 
-        _instructions, _description, block.timestamp, 0, 0));
+        Recipe memory recipe;
+        recipe.owner = msg.sender;
+        recipe.recipeId = _recipeId;
+        recipe.timestamp = block.timestamp;
+        recipe.tips = 0;
+        recipes.push(recipe);
 
         // Emit event
-        emit NewRecipe(msg.sender, block.timestamp, _name, _recipeId, _imageUrl, _videoUrl, 
-        _instructions, _description);
+        emit NewRecipe(msg.sender, block.timestamp, _recipeId);
+    }
+
+    // User can tip the owner of a recipe directly. The tip is recorded in the recipe's tips.
+    function sendTip(address payable _owner, 
+        string memory _recipeId, 
+        uint256 _amount, 
+        string memory _comment) public noReentrancy {
+        // Check if the user is the owner of the recipe
+        for (uint256 i=0; i<totalRecipes; i++) {
+            if (keccak256(bytes(recipes[i].recipeId)) == keccak256(bytes(_recipeId))) {
+                // If the sender is the owner of the recipe, exit. If not, transfer the amount to the owner.
+                if (recipes[i].owner == msg.sender) {
+                    console.log("User %s is the owner of recipe %s, cannot tip.", msg.sender, _recipeId);
+                    break;
+                } else {
+                    // Record the tip and add comments if any
+                    totalTips+=_amount;
+                    recipes[i].tips += _amount;
+                    recipes[i].comments.push(_comment);
+                    // Send the tip from the sender to the recipe owner
+                    require(
+                    _amount <= address(msg.sender).balance,
+                    "Trying to send more money than the address holds."
+                    );
+                    (bool success, ) = (_owner).call{value: _amount}("");
+                    require(success, "Failed to send money to the owner.");
+                    // Emit the event
+                    emit RecipeTip(msg.sender, block.timestamp, _recipeId, _amount);
+                    break;
+                }
+            }
+        }
     }
 
     function getAllRecipes() public view returns (Recipe[] memory) {

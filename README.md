@@ -1,15 +1,10 @@
-# Basic Sample Hardhat Project
+# Welcome to my cookbook project
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts.
+This open source project demonstrates basic two Ethereum smart contract use cases, 
+modified for creating and sharing recipes. Sharing recipes will require that the 
+recipe be on the blockchain and that the user minted the recipe. To view recipes,
+users will be required to send a tip of their choosing to the creator. The webapp 
+connects to Ethereum wallets and uses the blockchain as the state machine for user profiles.
+Cook3 hosts the blockchain code and the cookbook sub folder holds the webapp code.
 
-Try running some of the following tasks:
-
-```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
-npx hardhat node
-node scripts/sample-script.js
-npx hardhat help
-```
+To run the app, change directory to the cookbook folder.
