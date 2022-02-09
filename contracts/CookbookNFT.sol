@@ -1,3 +1,6 @@
+/* NOTE: This contract will be released once a community has been built. This is 
+to help organically grow the community and allow curators time to create great recipes. */
+
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.0;
@@ -10,8 +13,8 @@ import "./libraries/Base64.sol";
 
 contract CookbookNFT is ERC721 {
     /* A smart contract that saves user's personal recipes on the blockchain as NFTs.
-    Users will be required to send a tip in order to view the recipe instructions from
-    other users' cookbooks. */
+    Users will be required to purchase an NFT in order to view the recipe instructions 
+    from other users' cookbooks. */
 
     // Struct for storing recipe data
     struct RecipeAttributes {
@@ -55,21 +58,38 @@ contract CookbookNFT is ERC721 {
     ) 
     ERC721("Recipes", "RECIPE")
     {
-        for(uint i = 0; i < recipeName.length; i++) {
+        if (recipeName.length == 1) {
             recipes.push(RecipeAttributes({
-                recipeIndex: i,
-                name: recipeName[i],
-                description: recipeDescription[i],
-                image: imageURI[i],
-                video: videoURI[i],
-                recipeId: recipeId[i],
-                protien: protien[i],
-                carbs: carbs[i],
-                fat: fat[i],
-                calories: calories[i]
+              recipeIndex: 0,
+              name: recipeName[0],
+              description: recipeDescription[0],
+              image: imageURI[0],
+              video: videoURI[0],
+              recipeId: recipeId[0],
+              protien: protien[0],
+              carbs: carbs[0],
+              fat: fat[0],
+              calories: calories[0]
             }));
-            RecipeAttributes memory r = recipes[i];
-            console.log("Done initializing recipe: %s, with recipeId: %s", r.name, r.recipeId);
+          RecipeAttributes memory r = recipes[0];
+          console.log("Done initializing recipe: %s, with recipeId: %s", r.name, r.recipeId);
+        } else {
+          for(uint i = 0; i < recipeName.length; i++) {
+              recipes.push(RecipeAttributes({
+                  recipeIndex: i,
+                  name: recipeName[i],
+                  description: recipeDescription[i],
+                  image: imageURI[i],
+                  video: videoURI[i],
+                  recipeId: recipeId[i],
+                  protien: protien[i],
+                  carbs: carbs[i],
+                  fat: fat[i],
+                  calories: calories[i]
+              }));
+              RecipeAttributes memory r = recipes[i];
+              console.log("Done initializing recipe: %s, with recipeId: %s", r.name, r.recipeId);
+          }
         }
 
         // Increment _tokenId to start at 1
@@ -81,7 +101,7 @@ contract CookbookNFT is ERC721 {
         // Get current tokenId
         uint256 newItemId = _tokenIds.current();
 
-        // Assign the tokenId to the caller's waller address
+        // Assign the tokenId to the caller's wallet address
         _safeMint(msg.sender, newItemId);
 
         // Map the tokenId to the recipe attributes
