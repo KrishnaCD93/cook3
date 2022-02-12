@@ -23,7 +23,9 @@ contract CookbookNFT is ERC721 {
         string description;
         string image;
         string video;
+        string instructions;
         string recipeId;
+        string recipeData;
         uint protien;
         uint carbs;
         uint fat;
@@ -45,19 +47,18 @@ contract CookbookNFT is ERC721 {
     // Create a mapping from an address to the NFTs tokenId to store the owner for reference
     mapping(address => uint256) public recipeNFTHolders;
 
-    constructor(
-        string[] memory recipeName,
+    constructor() ERC721("Recipes", "RECIPE") {}
+
+    function createRecipe(string[] memory recipeName,
         string[] memory recipeDescription,
         string[] memory imageURI,
         string[] memory videoURI,
         string[] memory recipeId,
+        string[] memory recipeData,
         uint[] memory protien,
         uint[] memory carbs,
         uint[] memory fat,
-        uint[] memory calories
-    ) 
-    ERC721("Recipes", "RECIPE")
-    {
+        uint[] memory calories) public {
         if (recipeName.length == 1) {
             recipes.push(RecipeAttributes({
               recipeIndex: 0,
@@ -65,7 +66,9 @@ contract CookbookNFT is ERC721 {
               description: recipeDescription[0],
               image: imageURI[0],
               video: videoURI[0],
+              instructions: "",
               recipeId: recipeId[0],
+              recipeData: recipeData[0],
               protien: protien[0],
               carbs: carbs[0],
               fat: fat[0],
@@ -81,7 +84,9 @@ contract CookbookNFT is ERC721 {
                   description: recipeDescription[i],
                   image: imageURI[i],
                   video: videoURI[i],
+                  instructions: "",
                   recipeId: recipeId[i],
+                  recipeData: recipeData[i],
                   protien: protien[i],
                   carbs: carbs[i],
                   fat: fat[i],
@@ -111,7 +116,9 @@ contract CookbookNFT is ERC721 {
             description: recipes[_recipeIndex].description,
             image: recipes[_recipeIndex].image,
             video: recipes[_recipeIndex].video,
+            instructions: "",
             recipeId: recipes[_recipeIndex].recipeId,
+            recipeData: recipes[_recipeIndex].recipeData,
             protien: recipes[_recipeIndex].protien,
             carbs: recipes[_recipeIndex].carbs,
             fat: recipes[_recipeIndex].fat,
@@ -145,6 +152,7 @@ contract CookbookNFT is ERC721 {
               recipeAttributes.description,'", "image": "',
               recipeAttributes.image,'", "youtube_url": "', 
               recipeAttributes.video,
+              '", "external_url": "', recipeAttributes.recipeData, 
               '", "attributes": [ { "trait_type": "Protien", "value": ',
               protien,'}, { "trait_type": "Carbs", "value": ',
               carbs,'}, { "trait_type": "Fat", "value": ',
