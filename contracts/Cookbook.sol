@@ -4,226 +4,312 @@ pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "./libraries/ArrayUtils.sol";
 
 contract Cookbook {
     /* The cookbook is a list of recipes that users have decided to share.
-    Each recipe is identified by it's unique token for each cookbook owner.
-    Users can send likes and tip each other for the recipe. */
-    uint256 totalTips;
+    Each recipe is identified by it's unique token for each cookbook owner.*/
 
     using Counters for Counters.Counter;
-    Counters.Counter totalRecipeCount;
-    Counters.Counter[] private _recipeToken;
-    Counters.Counter[] private _cookbookLikes;
+    Counters.Counter public totalRecipeCount; // Total number of recipes in the network.
+    Counters.Counter public totalCookbookCount; // Total number of cookbooks in the network.
+    mapping(uint256 => Counters.Counter) private _cookbookToken; // Cookbook token number of current user.
+    mapping(uint256 => mapping(uint256 => Counters.Counter)) private _recipeToken; // Recipe token number of current cookbook.
 
-    event NewCookbook(address indexed from, uint256 timestamp);
-    event UpdateCookbook(address indexed from, uint256 timestamp);
-    event DeleteCookbook(address indexed from, uint256 timestamp);
+    // Events for creating, updating and deleting user profiles.
+    event NewUser(address indexed user, uint256 timestamp);
+    event UpdateUser(address indexed user, uint256 timestamp);
+    event DeleteUser(address indexed user, uint256 timestamp);
+    // Events for creating, updating and deleting cookbooks.
+    event NewCookbook(address indexed from, uint256 timestamp, uint256 cookbookToken);
+    event UpdateCookbook(address indexed from, uint256 timestamp, uint256 cookbookToken);
+    event DeleteCookbook(address indexed from, uint256 timestamp, uint256 cookbookToken);
+    // Events for creating, updating and deleting recipes.
     event NewRecipe(address indexed from, uint256 timestamp, uint256 recipeToken);
     event UpdateRecipe(address indexed from, uint256 timestamp, uint256 recipeToken);
     event DeleteRecipe(address indexed from, uint256 timestamp, uint256 recipeToken);
-    event CookbookTip(address indexed from, uint256 timestamp, uint256 recipeToken, uint256 amount);
 
-    // Create a mapping of owner to their cookbook and it's recipes.
-    mapping(address => MyCookbook) public myCookbook;
+    // Create a mapping of owner to their profile and it's cookbooks and recipes.
+    mapping(address => UserProfile) public userProfile;
     address[] public cookbookOwners;
 
-    // Create a mapping of like sender to the recipe they like.
-    mapping(address => string[]) public myLikes;
+    struct UserProfile {
+        string name; // User's name
+        string bio; // User's bio
+        string email; // User's email
+        string[] socials; // User's social media links
+        mapping(uint256 => MyCookbook) myCookbooks; // User's cookbooks
+        uint256 cookbookSize; // Number of cookbooks
+        uint256 listPointer; // Pointer to the owner of the profile in cookbookOwners.
+    }
 
     struct MyCookbook {
         string name; // The name of the cookbook.
         string description; // The description of the cookbook.
         string[] tags; // The tags of the cookbook.
-        Recipe[] recipes; // The recipes in the cookbook.
+        mapping(uint256 => Recipe) myRecipes; // The recipes in the cookbook.
+        uint256 recipeSize; // The size of the recipes array.
         uint256 timeCreated; // The time the cookbook was created.
+        uint256 cookbookTokenNum; // The cookbook token number.
         uint256 likes; // The total likes for the cookbook.
         uint256 tips; // The total tips for the cookbook.
-        uint listPointer; // The pointer to the owner of the cookbook.
     }
 
     struct Recipe {
         string recipeId; // Database ID to connect to the ingredients and methods.
         string recipeData; // The full recipe data encoded as a base64 string.
-        uint256 likes; // The number of likes for this recipe.
         uint256 timeCreated; // The time this recipe was created.
         uint256 timeUpdated; // The time this recipe was last updated.
-        uint256 recipeToken; // The unique token for this recipe.
+        uint256 recipeTokenNum; // The recipe token number.
+        uint256 likes; // The number of likes for this recipe.
     }
 
     constructor () payable {
         console.log("Cookbook constructor");
     }
 
-    // Check if cookbook exists.
-    function cookbookExists(address _owner) public view returns (bool exists) {
-        if (cookbookOwners.length == 0) return false;
-        return cookbookOwners[myCookbook[_owner].listPointer] == _owner;
+    modifier originSender() {
+        require(tx.origin == msg.sender);
+        _;
     }
 
-    // Get count of cookbooks.
-    function getCookbookCount() public view returns (uint256) {
-        return cookbookOwners.length;
+    // Check if user exists.
+    function userExists(address user) public view returns (bool) {
+        return user == cookbookOwners[userProfile[user].listPointer];
+    }
+
+    // Add a new user.
+    function addUser(string memory _name, 
+        string memory _bio, string memory _email, 
+        string[] memory _socials) public originSender {
+        address user = msg.sender;
+        cookbookOwners.push(user); // Add user to the list of cookbook owners.
+
+        // Create a new user profile.
+        UserProfile storage newUser = userProfile[user];
+        newUser.name = _name;
+        newUser.bio = _bio;
+        newUser.email = _email;
+        newUser.socials = _socials;
+        newUser.cookbookSize = 0;
+        newUser.listPointer = cookbookOwners.length - 1;
+
+        emit NewUser(user, block.timestamp);
+    }
+
+    // Update a user.
+    function updateUser(string memory _name, string memory _bio, string memory _email, string[] memory _socials) public originSender {
+        address user = msg.sender;
+        if (!userExists(user)) revert();
+
+        // Check which fields have changed and update.
+        if (keccak256(bytes((_name))) != keccak256(bytes((userProfile[user].name)))) 
+            userProfile[user].name = _name;
+        if (keccak256(bytes((_bio))) != keccak256(bytes((userProfile[user].bio)))) 
+            userProfile[user].bio = _bio;
+        if (keccak256(bytes((_email))) != keccak256(bytes((userProfile[user].email)))) 
+            userProfile[user].email = _email;
+        for (uint256 i = 0; i < _socials.length; i++) {
+            if (keccak256(bytes((_socials[i]))) != keccak256(bytes((userProfile[user].socials[i])))) 
+                userProfile[user].socials[i] = _socials[i];
+        }
+
+        emit UpdateUser(user, block.timestamp);
+    }
+
+    // Delete a user.
+    function deleteUser() public originSender {
+        address user = msg.sender;
+        if (!userExists(user)) revert();
+        
+        uint256 index = userProfile[user].listPointer; // Find index in cookbookOwners.
+        require(index < cookbookOwners.length, "index out of bound"); 
+        
+        // Remove from cookbookOwners.
+        for (uint i = index; i < cookbookOwners.length - 1; i++) {
+            cookbookOwners[i] = cookbookOwners[i + 1];
+        }
+        cookbookOwners.pop();
+        // Remove from mapping.
+        delete userProfile[user];
+
+        emit DeleteUser(user, block.timestamp);
+    }
+
+    // Check if cookbook exists.
+    function cookbookExists(address _owner, uint256 _tokenNum) public view returns (bool exists) {
+        if (!userExists(_owner)) revert();
+        uint256 index = _tokenNum - 1;
+        return _tokenNum == userProfile[_owner].myCookbooks[index].cookbookTokenNum;
     }
 
     // Add a new cookbook.
-    function addCookbook(address _owner, string memory _name, string memory _description, string[] memory _tags) public {
-        if (cookbookExists(_owner)) revert("Cookbook already exists");
-        cookbookOwners.push(_owner);
+    function addCookbook(string memory _name, string memory _description, string[] memory _tags) public originSender {
+        address owner = msg.sender;
+        uint256 index = userProfile[owner].cookbookSize; // Get index in cookbook array.
+        totalCookbookCount.increment(); // Increment total cookbook count.
+        _cookbookToken[userProfile[owner].listPointer].increment(); // Increment cookbook token.
 
-        MyCookbook memory cookbook;
-        cookbook.name = _name;
-        cookbook.description = _description;
-        cookbook.tags = _tags;
-        cookbook.timeCreated = block.timestamp;
-        cookbook.listPointer = cookbookOwners.length - 1;
-        myCookbook[_owner] = cookbook;
+        // Create cookbook and map it to the owner.
+        MyCookbook storage newCookbook = userProfile[owner].myCookbooks[index];
+        newCookbook.name = _name;
+        newCookbook.description = _description;
+        newCookbook.tags = _tags;
+        newCookbook.timeCreated = block.timestamp;
+        newCookbook.cookbookTokenNum = _cookbookToken[userProfile[owner].listPointer].current();
+        userProfile[owner].cookbookSize += 1; // Increment cookbook size.
 
-        emit NewCookbook(_owner, block.timestamp);
+        emit NewCookbook(owner, block.timestamp, userProfile[owner].cookbookSize);
     }
 
     // Update a cookbook.
-    function updateCookbook(address _owner, string memory _name, string memory _description, string[] memory _tags) public {
-        if (!cookbookExists(_owner)) revert("Cookbook does not exist");
-        myCookbook[_owner].name = _name;
-        myCookbook[_owner].description = _description;
-        myCookbook[_owner].tags = _tags;
-        emit UpdateCookbook(_owner, block.timestamp);
+    function updateCookbook(string memory _name, string memory _description, string[] memory _tags, uint256 _cookbookTokenNum) public originSender {
+        address owner = msg.sender;
+        uint256 index = _cookbookTokenNum - 1;
+        if (!cookbookExists(owner, index)) revert();
+        
+        // Check which fields have changed and update.
+        if (keccak256(bytes((_name))) != keccak256(bytes((userProfile[owner].myCookbooks[index].name)))) 
+            userProfile[owner].myCookbooks[index].name = _name;
+        if (keccak256(bytes((_description))) != keccak256(bytes((userProfile[owner].myCookbooks[index].description)))) 
+            userProfile[owner].myCookbooks[index].description = _description;
+        for (uint256 i = 0; i < _tags.length; i++) {
+            if (keccak256(bytes((_tags[i]))) != keccak256(bytes((userProfile[owner].myCookbooks[index].tags[i])))) 
+                userProfile[owner].myCookbooks[index].tags[i] = _tags[i];
+        }
+
+        emit UpdateCookbook(owner, block.timestamp, _cookbookTokenNum);
     }
 
     // Delete a cookbook.
-    function deleteCookbook(address _owner) public {
-        if (!cookbookExists(_owner)) revert("Cookbook does not exist");
-        // Find index in cookbookOwners.
-        uint256 index = myCookbook[_owner].listPointer;
-        // Remove from cookbookOwners.
-        cookbookOwners[index] = cookbookOwners[cookbookOwners.length - 1];
-        cookbookOwners.pop();
-        delete myCookbook[_owner];
-        emit DeleteCookbook(_owner, block.timestamp);
+    function deleteCookbook(uint256 _cookbookTokenNum) public originSender {
+        address owner = msg.sender;
+        uint256 index = _cookbookTokenNum - 1;
+
+        require(index < userProfile[owner].cookbookSize, "index out of bound");
+        if (!cookbookExists(owner, _cookbookTokenNum)) revert();
+
+        delete userProfile[owner].myCookbooks[index]; // Delete cookbook from mapping.
+        userProfile[owner].cookbookSize -= 1; // Decrement cookbook size.
+        _cookbookToken[userProfile[owner].listPointer].decrement(); // Decrement cookbook token.
+        totalCookbookCount.decrement(); // Decrement total cookbook count.
+
+        emit DeleteCookbook(owner, block.timestamp, _cookbookTokenNum);
     }
 
     // Check if owner's recipe exists.
-    function recipeExists(address _owner, uint _tokenNum) public view returns (bool exists) {
-        if (!cookbookExists(_owner)) return false;
-        uint recipeIndex = _tokenNum - 1;
-        return myCookbook[_owner].recipes[recipeIndex].recipeToken == _tokenNum;
-    }
-
-    // Get count of owner's recipes.
-    function getRecipeCount(address _owner) public view returns (uint256) {
-        if (!cookbookExists(_owner)) return 0;
-        return myCookbook[_owner].recipes.length;
+    function recipeExists(address _owner, uint256 _cookbookTokenNum, uint256 _recipeTokenNum) public view returns (bool exists) {
+        uint256 cookbookIndex = _cookbookTokenNum - 1;
+        if (!cookbookExists(_owner, _cookbookTokenNum)) return false;
+        return userProfile[_owner].myCookbooks[cookbookIndex].recipeSize <= _recipeTokenNum;
     }
 
     // Add a new recipe to the cookbook.
-    function addRecipe(string memory _recipeId, string memory _recipeData) public {
-        address _owner = msg.sender;
-        if (!cookbookExists(_owner)) revert("Cookbook does not exist");
-        
+    function addRecipe(string memory _recipeId, string memory _recipeData, uint256 _cookbookTokenNum) public originSender {
+        address owner = msg.sender;
+        uint256 cookbookIndex = _cookbookTokenNum - 1;
+        uint256 recipeIndex = userProfile[owner].myCookbooks[cookbookIndex].recipeSize;
+        if (!cookbookExists(owner, _cookbookTokenNum)) revert();
         totalRecipeCount.increment();
-        _recipeToken[myCookbook[_owner].listPointer].increment();
+        _recipeToken[userProfile[owner].listPointer][cookbookIndex].increment();
 
         // Store recipe data in myCookbook.
-        Recipe memory recipe;
-        recipe.recipeId = _recipeId;
-        recipe.recipeData = _recipeData;
-        recipe.timeCreated = block.timestamp;
-        recipe.recipeToken = _recipeToken[myCookbook[_owner].listPointer].current();
-        myCookbook[msg.sender].recipes.push(recipe);
+        Recipe storage newRecipe = userProfile[owner].myCookbooks[cookbookIndex].myRecipes[recipeIndex];
+        newRecipe.recipeId = _recipeId;
+        newRecipe.recipeData = _recipeData;
+        newRecipe.timeCreated = block.timestamp;
+        newRecipe.recipeTokenNum = _recipeToken[userProfile[owner].listPointer][cookbookIndex].current();
+        userProfile[owner].myCookbooks[cookbookIndex].recipeSize += 1; // Increment recipe size.
 
         // Emit event
-        console.log("Recipe added w/ recipeID: %s, by %s:", _recipeId, msg.sender);
-        emit NewRecipe(msg.sender, block.timestamp, recipe.recipeToken);
+        emit NewRecipe(msg.sender, block.timestamp, userProfile[owner].myCookbooks[cookbookIndex].recipeSize);
     }
 
-    // Update a recipe with comments.
-    function updateRecipe(address _owner, 
-        uint256 _tokenNum, 
-        string memory _recipeData) public {
-        if (!cookbookExists(_owner)) revert("Cookbook does not exist");
-        if (!recipeExists(_owner, _tokenNum)) revert("Recipe does not exist");
+    // Update a recipe.
+    function updateRecipe(string memory _recipeData, uint256 _cookbookTokenNum, uint256 _recipeTokenNum) public originSender {
+        address owner = msg.sender;
+        if (!recipeExists(owner, _cookbookTokenNum, _recipeTokenNum)) revert();
 
+        uint256 recipeIndex = _recipeTokenNum - 1;
+        uint256 cookbookIndex = _cookbookTokenNum - 1;
         // Update recipe data.
-        uint256 recipeIndex = _tokenNum - 1;
-        myCookbook[_owner].recipes[recipeIndex].recipeData = _recipeData;
-        myCookbook[_owner].recipes[recipeIndex].timeUpdated = block.timestamp;
+        userProfile[owner].myCookbooks[cookbookIndex].myRecipes[recipeIndex].recipeData = _recipeData;
+        userProfile[owner].myCookbooks[cookbookIndex].myRecipes[recipeIndex].timeUpdated = block.timestamp;
 
-        console.log("Recipe #: %s, updated by %s:", _tokenNum, msg.sender);
-        emit UpdateRecipe(msg.sender, block.timestamp, _tokenNum);
+        emit UpdateRecipe(owner, block.timestamp, _recipeTokenNum);
     }
 
     // Delete a recipe.
-    function deleteRecipe(address _owner, uint256 _tokenNum) public {
-        uint256 index = _tokenNum - 1;
-        delete myCookbook[_owner].recipes[index];
+    function deleteRecipe(uint256 _cookbookTokenNum, uint256 _recipeTokenNum) public originSender {
+        address _owner = msg.sender;
+        if (!recipeExists(_owner, _cookbookTokenNum, _recipeTokenNum)) revert();
 
-        console.log("Recipe #: %s, deleted by %s:", _tokenNum, msg.sender);
-        emit DeleteRecipe(msg.sender, block.timestamp, _tokenNum);
+        uint256 recipeIndex = _recipeTokenNum - 1;
+        uint256 cookbookIndex = _cookbookTokenNum - 1;
+        delete userProfile[_owner].myCookbooks[cookbookIndex].myRecipes[recipeIndex]; // Delete recipe from mapping.
+        userProfile[_owner].myCookbooks[cookbookIndex].recipeSize -= 1; // Decrement recipe size.
+        _recipeToken[userProfile[_owner].listPointer][cookbookIndex].decrement(); // Decrement recipe token.
+        totalRecipeCount.decrement(); // Decrement total recipe count.
+
+        emit DeleteRecipe(_owner, block.timestamp, _recipeTokenNum);
     }
 
-    // User can send a like along with tokens for a cookbook or the recipe.
-    function sendCookbookLike(address payable _owner, 
-        uint256 _tokenNum, 
-        uint256 _amount) public {
-            if (!cookbookExists(_owner)) revert();
-            if (!recipeExists(_owner, _tokenNum)) revert();
-
-            // Record the tip amount and add a like to the recipe.
-            _cookbookLikes[myCookbook[_owner].listPointer].increment();
-            myCookbook[_owner].likes = _cookbookLikes[myCookbook[_owner].listPointer].current();
-            // Record record owner's likes.
-            uint256 index = _tokenNum - 1;
-            myLikes[msg.sender].push(myCookbook[_owner].recipes[index].recipeId);
-
-            // Send tokens, if any, to the recipe owner.
-            if (_amount != 0) {
-            // Check if the the sender can afford the tip.
-            require(
-            _amount <= address(msg.sender).balance,
-            "Trying to send more money than the address holds."
-            );
-            // Send the tokens and record the transfer amount.
-            (bool success, ) = (_owner).call{value: _amount}("");
-            require(success, "Failed to send money to the owner.");
-            totalTips += _amount;
-            myCookbook[_owner].tips += _amount;
-            }
-
-            // Emit the event
-            emit CookbookTip(msg.sender, block.timestamp, _tokenNum, _amount);
-        }
-
-    // User can like a recipe.
-    function sendRecipeLike(address payable _owner, 
-        uint256 _tokenNum) public returns (bool success) {
-            if (!cookbookExists(_owner)) revert();
-            if (!recipeExists(_owner, _tokenNum)) revert();
-
-            // Record the like and tip amount.
-            uint256 index = _tokenNum - 1;
-            myCookbook[_owner].recipes[index].likes += 1;
-
-            // Record record owner's likes.
-            myLikes[msg.sender].push(myCookbook[_owner].recipes[index].recipeId);
-
-            return true;
-        }
-
-    // Get all the recipes for a user.
-    function getMyRecipes(address _owner) public view returns (Recipe[] memory) {
-        if (!cookbookExists(_owner)) revert("Cookbook not populated, start by building a recipe.");
-        return myCookbook[_owner].recipes;
-    }
 
     // Get all the cookbook owners.
-    function getAllCookbooks() public view returns (address[] memory) {
+    function getAllOwners() public view returns (address[] memory) {
         return cookbookOwners;
     }
 
-    function getTotals() public view returns (uint256 r, uint256 t) {
-        uint totalRecipes = totalRecipeCount.current();
-        r = totalRecipes;
-        t = totalTips;
+    // Get user profile info.
+    function getUserProfile(address _owner) public view returns (string memory name, string memory bio, 
+        string memory email, string[] memory socials, uint cookbookSize, uint listPointer) {
+        return (userProfile[_owner].name, userProfile[_owner].bio, userProfile[_owner].email, 
+        userProfile[_owner].socials, userProfile[_owner].cookbookSize, userProfile[_owner].listPointer);
+    }
+
+    // Get all cookbooks.
+    function getMyCookbooks(address _owner) public view returns (string[] memory name, string[] memory description, 
+        string[][] memory tags, uint256[] memory numRecipes, uint256[] memory cookbookTokenNum) {
+        if (!userExists(_owner)) revert("User does not exist");
+
+        // Get cookbook info.
+        string[] memory cookbookNames = new string[](userProfile[_owner].cookbookSize);
+        string[] memory cookbookDescriptions = new string[](userProfile[_owner].cookbookSize);
+        string[][] memory cookbookTags = new string[][](userProfile[_owner].cookbookSize);
+        uint256[] memory cookbookRecipeSizes = new uint256[](userProfile[_owner].cookbookSize);
+        uint256[] memory cookbookTokenNums = new uint256[](userProfile[_owner].cookbookSize);
+        
+        // Store info in an array.
+        for (uint i = 0; i < userProfile[_owner].cookbookSize; i++) {
+            cookbookNames[i] = userProfile[_owner].myCookbooks[i].name;
+            cookbookDescriptions[i] = userProfile[_owner].myCookbooks[i].description;
+            cookbookRecipeSizes[i] = userProfile[_owner].myCookbooks[i].recipeSize;
+            cookbookTags[i] = new string[](userProfile[_owner].myCookbooks[i].tags.length);
+            for (uint j = 0; j < userProfile[_owner].myCookbooks[i].tags.length; j++) {
+                cookbookTags[i][j] = userProfile[_owner].myCookbooks[i].tags[j];
+            }
+            cookbookTokenNums[i] = userProfile[_owner].myCookbooks[i].cookbookTokenNum;
+        }
+
+        return (cookbookNames, cookbookDescriptions, cookbookTags, cookbookRecipeSizes, cookbookTokenNums);
+    }
+
+    // Get all the recipes for a cookbook.
+    function getMyRecipes(address _owner, uint256 _cookbookTokenNum) public view returns (Recipe[] memory) {
+        if (!cookbookExists(_owner, _cookbookTokenNum)) revert();
+        uint256 cookbookIndex = _cookbookTokenNum - 1;
+        Recipe[] memory myRecipes = new Recipe[](userProfile[_owner].myCookbooks[cookbookIndex].recipeSize);
+        for (uint i = 0; i < userProfile[_owner].myCookbooks[cookbookIndex].recipeSize; i++) {
+            myRecipes[i] = userProfile[_owner].myCookbooks[cookbookIndex].myRecipes[i];
+        }
+        return myRecipes;
+    }
+
+
+    function getTotals() public view returns (uint256 totalUsers, uint256 totalCookbooks, uint256 totalRecipes) {
+        uint256 recipeTotal = totalRecipeCount.current();
+        uint256 cookbookTotal = totalCookbookCount.current();
+        uint256 userTotal = cookbookOwners.length;
+        return(userTotal, cookbookTotal, recipeTotal);
     }
 }
