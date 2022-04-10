@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export const Header = styled.header`
+export const HeaderStyle = styled.header`
   background-color: #282c34;
   min-height: 70px;
   display: flex;
@@ -52,3 +52,8 @@ export const Button = styled.button`
     outline: none;
   }
 `;
+
+export { default as Article } from "./article/Article";
+export { default as CTA } from "./cta/CTA";
+export { default as Feature } from "./feature/Feature";
+export { default as Navbar } from "./navbar/Navbar";

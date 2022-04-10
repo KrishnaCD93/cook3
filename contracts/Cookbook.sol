@@ -18,16 +18,8 @@ contract Cookbook {
 
     // Events for creating, updating and deleting user profiles.
     event NewUser(address indexed user, uint256 timestamp);
-    event UpdateUser(address indexed user, uint256 timestamp);
-    event DeleteUser(address indexed user, uint256 timestamp);
     // Events for creating, updating and deleting cookbooks.
     event NewCookbook(address indexed from, uint256 timestamp, uint256 cookbookToken);
-    event UpdateCookbook(address indexed from, uint256 timestamp, uint256 cookbookToken);
-    event DeleteCookbook(address indexed from, uint256 timestamp, uint256 cookbookToken);
-    // Events for creating, updating and deleting recipes.
-    event NewRecipe(address indexed from, uint256 timestamp, uint256 recipeToken);
-    event UpdateRecipe(address indexed from, uint256 timestamp, uint256 recipeToken);
-    event DeleteRecipe(address indexed from, uint256 timestamp, uint256 recipeToken);
 
     // Create a mapping of owner to their profile and it's cookbooks and recipes.
     mapping(address => UserProfile) public userProfile;
@@ -47,21 +39,11 @@ contract Cookbook {
         string name; // The name of the cookbook.
         string description; // The description of the cookbook.
         string[] tags; // The tags of the cookbook.
-        mapping(uint256 => Recipe) myRecipes; // The recipes in the cookbook.
         uint256 recipeSize; // The size of the recipes array.
         uint256 timeCreated; // The time the cookbook was created.
         uint256 cookbookTokenNum; // The cookbook token number.
         uint256 likes; // The total likes for the cookbook.
         uint256 tips; // The total tips for the cookbook.
-    }
-
-    struct Recipe {
-        string recipeId; // Database ID to connect to the ingredients and methods.
-        string recipeData; // The full recipe data encoded as a base64 string.
-        uint256 timeCreated; // The time this recipe was created.
-        uint256 timeUpdated; // The time this recipe was last updated.
-        uint256 recipeTokenNum; // The recipe token number.
-        uint256 likes; // The number of likes for this recipe.
     }
 
     constructor () payable {
@@ -97,45 +79,6 @@ contract Cookbook {
         emit NewUser(user, block.timestamp);
     }
 
-    // Update a user.
-    function updateUser(string memory _name, string memory _bio, string memory _email, string[] memory _socials) public originSender {
-        address user = msg.sender;
-        if (!userExists(user)) revert();
-
-        // Check which fields have changed and update.
-        if (keccak256(bytes((_name))) != keccak256(bytes((userProfile[user].name)))) 
-            userProfile[user].name = _name;
-        if (keccak256(bytes((_bio))) != keccak256(bytes((userProfile[user].bio)))) 
-            userProfile[user].bio = _bio;
-        if (keccak256(bytes((_email))) != keccak256(bytes((userProfile[user].email)))) 
-            userProfile[user].email = _email;
-        for (uint256 i = 0; i < _socials.length; i++) {
-            if (keccak256(bytes((_socials[i]))) != keccak256(bytes((userProfile[user].socials[i])))) 
-                userProfile[user].socials[i] = _socials[i];
-        }
-
-        emit UpdateUser(user, block.timestamp);
-    }
-
-    // Delete a user.
-    function deleteUser() public originSender {
-        address user = msg.sender;
-        if (!userExists(user)) revert();
-        
-        uint256 index = userProfile[user].listPointer; // Find index in cookbookOwners.
-        require(index < cookbookOwners.length, "index out of bound"); 
-        
-        // Remove from cookbookOwners.
-        for (uint i = index; i < cookbookOwners.length - 1; i++) {
-            cookbookOwners[i] = cookbookOwners[i + 1];
-        }
-        cookbookOwners.pop();
-        // Remove from mapping.
-        delete userProfile[user];
-
-        emit DeleteUser(user, block.timestamp);
-    }
-
     // Check if cookbook exists.
     function cookbookExists(address _owner, uint256 _tokenNum) public view returns (bool exists) {
         if (!userExists(_owner)) revert();
@@ -160,41 +103,6 @@ contract Cookbook {
         userProfile[owner].cookbookSize += 1; // Increment cookbook size.
 
         emit NewCookbook(owner, block.timestamp, userProfile[owner].cookbookSize);
-    }
-
-    // Update a cookbook.
-    function updateCookbook(string memory _name, string memory _description, string[] memory _tags, uint256 _cookbookTokenNum) public originSender {
-        address owner = msg.sender;
-        uint256 index = _cookbookTokenNum - 1;
-        if (!cookbookExists(owner, index)) revert();
-        
-        // Check which fields have changed and update.
-        if (keccak256(bytes((_name))) != keccak256(bytes((userProfile[owner].myCookbooks[index].name)))) 
-            userProfile[owner].myCookbooks[index].name = _name;
-        if (keccak256(bytes((_description))) != keccak256(bytes((userProfile[owner].myCookbooks[index].description)))) 
-            userProfile[owner].myCookbooks[index].description = _description;
-        for (uint256 i = 0; i < _tags.length; i++) {
-            if (keccak256(bytes((_tags[i]))) != keccak256(bytes((userProfile[owner].myCookbooks[index].tags[i])))) 
-                userProfile[owner].myCookbooks[index].tags[i] = _tags[i];
-        }
-
-        emit UpdateCookbook(owner, block.timestamp, _cookbookTokenNum);
-    }
-
-    // Delete a cookbook.
-    function deleteCookbook(uint256 _cookbookTokenNum) public originSender {
-        address owner = msg.sender;
-        uint256 index = _cookbookTokenNum - 1;
-
-        require(index < userProfile[owner].cookbookSize, "index out of bound");
-        if (!cookbookExists(owner, _cookbookTokenNum)) revert();
-
-        delete userProfile[owner].myCookbooks[index]; // Delete cookbook from mapping.
-        userProfile[owner].cookbookSize -= 1; // Decrement cookbook size.
-        _cookbookToken[userProfile[owner].listPointer].decrement(); // Decrement cookbook token.
-        totalCookbookCount.decrement(); // Decrement total cookbook count.
-
-        emit DeleteCookbook(owner, block.timestamp, _cookbookTokenNum);
     }
 
     // Check if owner's recipe exists.
@@ -223,35 +131,6 @@ contract Cookbook {
 
         // Emit event
         emit NewRecipe(msg.sender, block.timestamp, userProfile[owner].myCookbooks[cookbookIndex].recipeSize);
-    }
-
-    // Update a recipe.
-    function updateRecipe(string memory _recipeData, uint256 _cookbookTokenNum, uint256 _recipeTokenNum) public originSender {
-        address owner = msg.sender;
-        if (!recipeExists(owner, _cookbookTokenNum, _recipeTokenNum)) revert();
-
-        uint256 recipeIndex = _recipeTokenNum - 1;
-        uint256 cookbookIndex = _cookbookTokenNum - 1;
-        // Update recipe data.
-        userProfile[owner].myCookbooks[cookbookIndex].myRecipes[recipeIndex].recipeData = _recipeData;
-        userProfile[owner].myCookbooks[cookbookIndex].myRecipes[recipeIndex].timeUpdated = block.timestamp;
-
-        emit UpdateRecipe(owner, block.timestamp, _recipeTokenNum);
-    }
-
-    // Delete a recipe.
-    function deleteRecipe(uint256 _cookbookTokenNum, uint256 _recipeTokenNum) public originSender {
-        address _owner = msg.sender;
-        if (!recipeExists(_owner, _cookbookTokenNum, _recipeTokenNum)) revert();
-
-        uint256 recipeIndex = _recipeTokenNum - 1;
-        uint256 cookbookIndex = _cookbookTokenNum - 1;
-        delete userProfile[_owner].myCookbooks[cookbookIndex].myRecipes[recipeIndex]; // Delete recipe from mapping.
-        userProfile[_owner].myCookbooks[cookbookIndex].recipeSize -= 1; // Decrement recipe size.
-        _recipeToken[userProfile[_owner].listPointer][cookbookIndex].decrement(); // Decrement recipe token.
-        totalRecipeCount.decrement(); // Decrement total recipe count.
-
-        emit DeleteRecipe(_owner, block.timestamp, _recipeTokenNum);
     }
 
 
