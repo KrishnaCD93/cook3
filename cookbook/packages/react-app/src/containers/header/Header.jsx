@@ -1,6 +1,7 @@
 import React from 'react';
 
-import logo from '../../assets/Logo - Limed Spruce.png';
+import logomark from '../../assets/Logomark - Sorrell Brown.png';
+import wordmark from '../../assets/Wordmark - Sorrell Brown.png';
 import {
   Circle,
   Container,
@@ -20,8 +21,9 @@ export default function CallToActionWithIllustration() {
         spacing={{ base: 8, md: 10 }}
         py={{ base: 20, md: 28 }}>
         <Circle>
-          <Image objectFit='cover' borderRadius='full' boxSize='550px' src={logo} alt='Logo' />
+          <Image objectFit='cover' borderRadius='full' boxSize={'550px'} src={logomark} alt='Logomark' />
         </Circle>
+        <Image src={wordmark} alt='Wordmark' />
         <Heading
           fontWeight={600}
           fontSize={{ base: '3xl', sm: '4xl', md: '6xl' }}
