@@ -21,7 +21,7 @@ export default function CallToActionWithIllustration() {
         spacing={{ base: 8, md: 10 }}
         py={{ base: 20, md: 28 }}>
         <Circle>
-          <Image objectFit='cover' borderRadius='full' boxSize={'550px'} src={logomark} alt='Logomark' />
+          <Image objectFit='cover' borderRadius='full' boxSize={'300px'} src={logomark} alt='Logomark' />
         </Circle>
         <Image src={wordmark} alt='Wordmark' />
         <Heading
