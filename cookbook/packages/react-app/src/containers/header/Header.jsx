@@ -12,7 +12,7 @@ import {
   Image,
 } from '@chakra-ui/react';
 
-export default function CallToActionWithIllustration() {
+export default function Header() {
   return (
     <Container maxW={'5xl'}>
       <Stack
@@ -21,7 +21,7 @@ export default function CallToActionWithIllustration() {
         spacing={{ base: 8, md: 10 }}
         py={{ base: 20, md: 28 }}>
         <Circle>
-          <Image objectFit='cover' borderRadius='full' boxSize={'300px'} src={logomark} alt='Logomark' />
+          <Image objectFit='cover' borderRadius='full' boxSize={{sm:'300px', md:'500px'}} src={logomark} alt='Logomark' />
         </Circle>
         <Image src={wordmark} alt='Wordmark' />
         <Heading
@@ -45,7 +45,7 @@ export default function CallToActionWithIllustration() {
             colorScheme={'brand'}
             bg={'brand.700'}
             _hover={{ bg: 'brand.500' }}>
-            Get started
+            Coming Soon
           </Button>
           <Button rounded={'full'} px={6}
             colorScheme={'brand'}

@@ -39,7 +39,7 @@ const WhatCookbook = () => {
               </Text>
             </VStack>
           </Box>
-          <Spacer />
+          <br />
           <Box>
             <VStack spacing={4}>
               <Heading as='h6' color='brand.400'>Discover</Heading>
@@ -49,7 +49,7 @@ const WhatCookbook = () => {
               </Text>
             </VStack>
           </Box>
-          <Spacer />
+          <br />
           <Box>
             <VStack spacing={4}>
               <Heading as='h6' color='brand.400'>Monetize</Heading>
