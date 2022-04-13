@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 
 import { Body, Button, HeaderStyle} from "./components";
 import useWeb3Modal from "./hooks/useWeb3Modal";
 
 import { Footer, Blog, Possibility, Features, WhatCookbook, Header } from "./containers";
 import { CTA, Navbar } from "./components";
+import { Canvas } from "@react-three/fiber"
 
 function WalletButton({ provider, loadWeb3Modal, logoutOfWeb3Modal }) {
   const [account, setAccount] = useState("");
@@ -67,7 +68,11 @@ function App() {
       <Body>
         <Header />
         <WhatCookbook />
-        <Features />
+        <Canvas>
+          <Suspense fallback={null}>
+            <Features />
+          </Suspense>
+        </Canvas>
         <Possibility />
         <CTA />
         <Blog />

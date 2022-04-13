@@ -1,11 +1,11 @@
 import React from 'react';
 
-const Article = ({ article }) => {
+const Feature = ({feature}) => {
   return(
     <div>
-      Article
+      feature
     </div>
   )
 }
 
-export default Article;
+export default Feature;
