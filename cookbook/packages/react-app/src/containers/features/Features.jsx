@@ -1,14 +1,17 @@
 import React from 'react';
+import { Canvas } from "@react-three/fiber"
 
-const Feature = () => {
+import { Feature } from '../../components';
+
+const Features = () => {
   return(
-      <mesh>
-        <bufferGeometry 
-          attach="geometry"
-          args={[1, 1, 1]}
-        />
-      </mesh>
+    <Canvas>
+      <ambientLight />
+      <pointLight position={[10, 10, 10]} />
+      <Feature position={[-1.2, 0, 0]} />
+      <Feature position={[1.2, 0, 0]} />
+    </Canvas>
   )
 }
 
-export default Feature;
+export default Features;

@@ -1,11 +1,12 @@
-import React, { Suspense, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Body, Button, HeaderStyle} from "./components";
 import useWeb3Modal from "./hooks/useWeb3Modal";
 
 import { Footer, Blog, Possibility, Features, WhatCookbook, Header } from "./containers";
 import { CTA, Navbar } from "./components";
-import { Canvas } from "@react-three/fiber"
+import { Container } from "@chakra-ui/react";
+import { a, useSpring } from 'react-spring'
 
 function WalletButton({ provider, loadWeb3Modal, logoutOfWeb3Modal }) {
   const [account, setAccount] = useState("");
@@ -59,6 +60,9 @@ function WalletButton({ provider, loadWeb3Modal, logoutOfWeb3Modal }) {
 function App() {
   const [provider, loadWeb3Modal, logoutOfWeb3Modal] = useWeb3Modal();
 
+  const fadeIn = useSpring({ to: { opacity: 1 }, from: { opacity: 0 } })
+
+
   return (
     <div>
       <HeaderStyle>
@@ -66,13 +70,15 @@ function App() {
         <WalletButton provider={provider} loadWeb3Modal={loadWeb3Modal} logoutOfWeb3Modal={logoutOfWeb3Modal} />
       </HeaderStyle>
       <Body>
+        <a.div style={fadeIn}>
         <Header />
+        </a.div>
         <WhatCookbook />
-        <Canvas>
-          <Suspense fallback={null}>
-            <Features />
-          </Suspense>
-        </Canvas>
+        <Container centerContent
+          spacing={{ base: 8, md: 10 }}
+          py={{ base: 20, md: 28 }}>
+          <Features />
+        </Container>
         <Possibility />
         <CTA />
         <Blog />
