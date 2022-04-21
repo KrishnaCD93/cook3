@@ -72,7 +72,7 @@ function SignUp() {
       bg={'brand.700'}
       _hover={{ bg: 'brand.500' }}>Sign Up!</Button>
 
-      <Modal isOpen={isOpen} onClose={onClose} motionPreset='slideInBottom' scrollBehavior='outside' isCentered='true'>
+      <Modal isOpen={isOpen} onClose={onClose} motionPreset='slideInBottom' scrollBehavior='outside'>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Modal Title</ModalHeader>
