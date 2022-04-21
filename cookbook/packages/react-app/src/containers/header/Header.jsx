@@ -10,9 +10,17 @@ import {
   Text,
   Button,
   Image,
-} from '@chakra-ui/react';
+  useDisclosure,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton,
+} from '@chakra-ui/react'
 
 export default function Header() {
+
   return (
     <Container maxW={'5xl'}>
       <Stack
@@ -21,7 +29,7 @@ export default function Header() {
         spacing={{ base: 8, md: 10 }}
         py={{ base: 20, md: 28 }}>
         <Circle>
-          <Image objectFit='cover' borderRadius='full' boxSize={{sm:'300px', md:'500px'}} src={logomark} alt='Logomark' />
+          <Image objectFit='cover' borderRadius='full' boxSize={{sm:'150px', md:'400px'}} src={logomark} alt='Logomark' />
         </Circle>
         <Image src={wordmark} alt='Wordmark' />
         <Heading
@@ -39,14 +47,7 @@ export default function Header() {
           discover new recipes. Create your meta kitchen.
         </Text>
         <Stack spacing={6} direction={'row'}>
-          <Button
-            rounded={'full'}
-            px={6}
-            colorScheme={'brand'}
-            bg={'brand.700'}
-            _hover={{ bg: 'brand.500' }}>
-            Coming Soon
-          </Button>
+          <SignUp />
           <Button rounded={'full'} px={6}
             colorScheme={'brand'}
             bg={'brand.100'}
@@ -57,4 +58,32 @@ export default function Header() {
       </Stack>
     </Container>
   );
+}
+
+// Sign up button with modal to embeded google form
+function SignUp() {
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  return (
+    <>
+      <Button onClick={onOpen}
+      rounded={'full'}
+      px={6}
+      colorScheme={'brand'}
+      bg={'brand.700'}
+      _hover={{ bg: 'brand.500' }}>Sign Up!</Button>
+
+      <Modal isOpen={isOpen} onClose={onClose} motionPreset='slideInBottom' scrollBehavior='outside' isCentered='true'>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Modal Title</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <iframe title='Cookbook Sign Up Form'
+            src="https://docs.google.com/forms/d/e/1FAIpQLSdnX5kioOIjyt7ZQIRJ2fat8lG7AUdx-SDfxMbVKT3BbTVtjg/viewform?embedded=true" 
+            width="375" height="1200" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+    </>
+  )
 }

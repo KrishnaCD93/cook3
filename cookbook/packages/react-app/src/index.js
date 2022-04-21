@@ -2,12 +2,11 @@ import "./index.css";
 
 import { ApolloProvider } from "@apollo/react-hooks";
 import ApolloClient from "apollo-boost";
-import React from "react";
-import ReactDOM from "react-dom";
 import { ChakraProvider } from '@chakra-ui/react'
 import { extendTheme } from "@chakra-ui/react"
 
 import App from "./App";
+import { createRoot } from 'react-dom/client';
 
 // You should replace this url with your own and put it into a .env file
 // See all subgraphs: https://thegraph.com/explorer/
@@ -30,11 +29,10 @@ const theme = extendTheme({
   },
 })
 
-ReactDOM.render(
+createRoot(document.getElementById('root')).render(
   <ApolloProvider client={client}>
     <ChakraProvider theme={theme}>
-      <App />
+      <App tab='home' />
     </ChakraProvider>
   </ApolloProvider>,
-  document.getElementById("root"),
 );
