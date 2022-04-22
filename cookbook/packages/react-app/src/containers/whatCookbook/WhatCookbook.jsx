@@ -1,4 +1,4 @@
-import { Box, Container, Divider, Flex, Heading, HStack, Spacer, VStack, Text, SimpleGrid } from '@chakra-ui/react';
+import { Box, Container, Divider, Flex, HStack, Spacer, VStack, Text, SimpleGrid } from '@chakra-ui/react';
 import React from 'react';
 
 const WhatCookbook = () => {
@@ -8,33 +8,37 @@ const WhatCookbook = () => {
         <Flex alignItems='baseline' margin='30px'>
           <VStack spacing={4}>
           <HStack>
-            <Flex align={'center'}>
-            <Heading as='h6' color={'brand.400'} align='center'>Why Cookbook?</Heading>
-            <Spacer />
-            <Text color={'brand.800'} fontSize='md' align={'center'}>
-              We are growing a social network of home chefs who want to share their recipe collections 
-              with the community. We are building a platform where users can compose recipes together and
-              create meals that they can share with their friends. 
-            </Text>
-            </Flex>
+            <SimpleGrid columns={{sm: 1, md: 2}}>
+              <Box as='flex' justifyContent='center' alignItems='center' margin={'25px'}>
+                <Text fontSize={'4xl'} color={'brand.400'} align='center'>Why Cookbook?</Text>
+              </Box>
+              <Box>
+                <Text color={'brand.800'} fontSize='md' align={'center'}>
+                  We are growing a social network of home chefs who want to share their recipe ideas 
+                  with their community. We are building a platform where users can create recipes together and
+                  compose meals that they can share with their friends. 
+                </Text>
+              </Box>
+            </SimpleGrid>
           </HStack>
         <Spacer />
           <Box align={'center'}>
             <Text
-              bgGradient='linear(to-t, brand.600 25%, brand.300 50%, brand.600 75%)'
+              bgGradient='linear(to-tl, brand.400, brand.500, brand.800)'
               bgClip='text'
+              textShadow={'0 1px 0 rgba(0, 0, 0, 0.1)'}
               fontSize='5xl'>
-              Built on the principles of ownership and composability to deliver decentralized taste
+              User generated content<br />delivering decentralized taste
               </Text>
           </Box>
         <Spacer />
         <SimpleGrid columns={{sm: 1, md: 3}}>
           <Box>
             <VStack spacing={4}>
-              <Heading as='h6' color='brand.400'>Create</Heading>
+              <Text fontSize='4xl' color='brand.400'>Create</Text>
               <Divider />
               <Text color='brand.800' fontSize='md' align={'center'}>
-                Use our visual builder to create complex recipes. Map out the ingredients, methods, and tools used.
+                Use our visual builder to build beautiful recipes. Map out the ingredients, methods, and tools used.
                 Simplify complexity and capture nuance.
               </Text>
             </VStack>
@@ -42,21 +46,22 @@ const WhatCookbook = () => {
           <br />
           <Box>
             <VStack spacing={4}>
-              <Heading as='h6' color='brand.400'>Discover</Heading>
+              <Text fontSize='4xl' color='brand.400'>Discover</Text>
               <Divider />
               <Text color='brand.800' fontSize='md' align={'center'}>
-                Discover new recipes. Add them to your collection. Tell the world how you compose your meals.
+                Discover new recipes and add them to your collection. 
+                Compose new meals and add variety to the marketplace of ideas.
               </Text>
             </VStack>
           </Box>
           <br />
           <Box>
             <VStack spacing={4}>
-              <Heading as='h6' color='brand.400'>Monetize</Heading>
+              <Text fontSize='4xl' color='brand.400'>Monetize</Text>
               <Divider />
               <Text color='brand.800' fontSize='md' align={'center'}>
                 Share your recipes with your friends and the community. Token gate access and interactions.
-                Create appreciation tokens and reward users who interact with your cookbooks.
+                Reward your community with appreciation tokens for interacting with your cookbook.
               </Text>
             </VStack>
           </Box>

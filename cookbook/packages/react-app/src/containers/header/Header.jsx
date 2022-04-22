@@ -35,23 +35,20 @@ export default function Header() {
         <Heading
           fontWeight={600}
           fontSize={{ base: '3xl', sm: '4xl', md: '6xl' }}
-          lineHeight={'110%'} color='brand.100'>
-          Recipe creation{' '}
+          lineHeight={'110%'} color='gray.300'>
+          Share your cooking meta <br />
           <Text as={'span'} color={'brand.700'}>
-            made easy
+            with the world
           </Text>
         </Heading>
-        <Text color={'gray.500'} maxW={'3xl'}>
+        <Text color={'gray.300'} maxW={'3xl'}>
           Build recipes with our graphical builder. Create recipe collections and
-          share them with your community. Interact with other users and
+          share them with your community. Interact with the community and
           discover new recipes. Create your meta kitchen.
         </Text>
-        <Stack spacing={6} direction={'row'}>
+        <Stack spacing={3} direction={'column'}>
           <SignUp />
-          <Button rounded={'full'} px={6}
-            colorScheme={'brand'}
-            bg={'brand.100'}
-            _hover={{ bg: 'brand.200' }}>
+          <Button variant={'link'} size='sm' colorScheme={'brand'}>
             Learn more
           </Button>
         </Stack>

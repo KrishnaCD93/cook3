@@ -57,11 +57,10 @@ function WalletButton({ provider, loadWeb3Modal, logoutOfWeb3Modal }) {
   );
 }
 
+
 function App() {
   const [provider, loadWeb3Modal, logoutOfWeb3Modal] = useWeb3Modal();
-
   const fadeIn = useSpring({ to: { opacity: 1 }, from: { opacity: 0 } })
-
 
   return (
     <div>
