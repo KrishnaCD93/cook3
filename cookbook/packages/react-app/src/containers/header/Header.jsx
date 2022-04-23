@@ -19,7 +19,7 @@ import {
   ModalCloseButton,
 } from '@chakra-ui/react'
 
-export default function Header() {
+export default function Header(props) {
 
   return (
     <Container maxW={'5xl'}>
@@ -48,7 +48,8 @@ export default function Header() {
         </Text>
         <Stack spacing={3} direction={'column'}>
           <SignUp />
-          <Button variant={'link'} size='sm' colorScheme={'brand'}>
+          <Button variant={'link'} size='sm' colorScheme={'brand'}
+            onClick={props.executeScroll}>
             Learn more
           </Button>
         </Stack>

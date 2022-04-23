@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 import { Body, Button, HeaderStyle} from "./components";
 import useWeb3Modal from "./hooks/useWeb3Modal";
@@ -61,6 +61,10 @@ function WalletButton({ provider, loadWeb3Modal, logoutOfWeb3Modal }) {
 function App() {
   const [provider, loadWeb3Modal, logoutOfWeb3Modal] = useWeb3Modal();
   const fadeIn = useSpring({ to: { opacity: 1 }, from: { opacity: 0 } })
+  const learnMoreRef = useRef(null);
+  const executeScroll = () => learnMoreRef.current.scrollIntoView(
+    { behavior: 'smooth', block: 'start' }
+  )
 
   return (
     <div>
@@ -70,9 +74,9 @@ function App() {
       </HeaderStyle>
       <Body>
         <a.div style={fadeIn}>
-        <Header />
+        <Header executeScroll={executeScroll} />
         </a.div>
-        <WhatCookbook />
+        <WhatCookbook learnMoreRef={learnMoreRef} />
         <Container centerContent
           spacing={{ base: 8, md: 10 }}
           py={{ base: 20, md: 28 }}>

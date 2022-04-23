@@ -1,10 +1,10 @@
 import { Box, Container, Divider, Flex, HStack, Spacer, VStack, Text, SimpleGrid } from '@chakra-ui/react';
 import React from 'react';
 
-const WhatCookbook = () => {
+const WhatCookbook = (props) => {
   return(
     <Container centerContent bg='brand.200' boxShadow={'inner'}>
-      <Box margin={'30px'} boxShadow='dark-lg' bg='brand.100'>
+      <Box margin={'30px'} boxShadow='dark-lg' bg='brand.100' ref={props.learnMoreRef}>
         <Flex alignItems='baseline' margin='30px'>
           <VStack spacing={4}>
           <HStack>
