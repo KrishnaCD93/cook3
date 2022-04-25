@@ -36,16 +36,11 @@ export default function Header(props) {
           fontWeight={600}
           fontSize={{ base: '3xl', sm: '4xl', md: '6xl' }}
           lineHeight={'110%'} color='gray.300'>
-          Share your cooking meta <br />
+          Make recipes <br />
           <Text as={'span'} color={'brand.700'}>
-            with the world
+            with your meta
           </Text>
         </Heading>
-        <Text color={'gray.300'} maxW={'3xl'}>
-          Build recipes with our graphical builder. Create recipe collections and
-          share them with your community. Interact with the community and
-          discover new recipes. Create your meta kitchen.
-        </Text>
         <Stack spacing={3} direction={'column'}>
           <SignUp />
           <Button variant={'link'} size='sm' colorScheme={'brand'}
@@ -73,7 +68,7 @@ function SignUp() {
       <Modal isOpen={isOpen} onClose={onClose} motionPreset='slideInBottom' scrollBehavior='outside'>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Modal Title</ModalHeader>
+          <ModalHeader>Sign Up!</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <iframe title='Cookbook Sign Up Form'
