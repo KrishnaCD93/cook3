@@ -23,7 +23,7 @@ const Features = (props) => {
       <ambientLight />
       <pointLight position={[10, 10, 10]} />
       <Feature position={[-1.2, 0, 0]} recipe={recipe_1} executeShowRecipe={props.executeShowRecipe} />
-      <Feature position={[1.2, 0, 0]} recipe={recipe_2} executeShowRecipe={props.executeShowRecipe} />
+      {/* <Feature position={[1.2, 0, 0]} recipe={recipe_2} executeShowRecipe={props.executeShowRecipe} /> */}
     </Canvas>
   )
 }
