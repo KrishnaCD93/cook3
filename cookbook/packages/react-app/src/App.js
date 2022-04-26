@@ -60,11 +60,21 @@ function WalletButton({ provider, loadWeb3Modal, logoutOfWeb3Modal }) {
 
 function App() {
   const [provider, loadWeb3Modal, logoutOfWeb3Modal] = useWeb3Modal();
+
   const fadeIn = useSpring({ to: { opacity: 1 }, from: { opacity: 0 } })
+
   const learnMoreRef = useRef(null);
   const executeScroll = () => learnMoreRef.current.scrollIntoView(
     { behavior: 'smooth', block: 'start' }
   )
+
+  const [showRecipe, setShowRecipe] = useState(false);
+  const recipeRef = useRef({name: '', ingredients: [], steps: [], myMeta: []});
+  const executeShowRecipe = (props) => {
+    recipeRef.current = props;
+    setShowRecipe(!showRecipe);
+    console.log(recipeRef.current);
+  }
 
   return (
     <div>
@@ -80,9 +90,11 @@ function App() {
         <Container centerContent
           spacing={{ base: 8, md: 10 }}
           py={{ base: 20, md: 28 }}>
-          <Features />
+          <Features executeShowRecipe={executeShowRecipe} />
         </Container>
-        <Possibility />
+        {showRecipe && <a.div style={fadeIn}>
+          <Possibility recipe={recipeRef.current} />
+          </a.div>}
         <CTA />
         <Blog />
         <Footer />
