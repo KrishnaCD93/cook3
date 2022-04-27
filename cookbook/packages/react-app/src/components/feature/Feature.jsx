@@ -2,7 +2,7 @@
 import React, { useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 
-const Feature = ({recipe, executeShowRecipe, props}) => {
+const Feature = ({recipe, executeScrollRecipe, setShowRecipe, setRecipe, position}) => {
   // This reference will give us direct access to the mesh
   const mesh = useRef()
   // Set up state for the hovered and active state
@@ -13,13 +13,15 @@ const Feature = ({recipe, executeShowRecipe, props}) => {
   // Handle click event
   const handleClick = (event) => {
     setActive(!active)
-    executeShowRecipe(recipe)
+    setRecipe(recipe)
+    setShowRecipe(!active)
+    executeScrollRecipe()
   }
   // Return view, these are regular three.js elements expressed in JSX
   return (
     <>
     <mesh
-      {...props}
+      position={position}
       ref={mesh}
       scale={active ? 1.5 : 1}
       onClick={e => handleClick(e)}
