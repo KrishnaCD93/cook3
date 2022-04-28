@@ -1,4 +1,4 @@
-import { Box, Flex, Grid, GridItem, Heading, Icon, Spacer, StackDivider, Text, VStack } from '@chakra-ui/react';
+import { Box, Container, Flex, Grid, GridItem, Heading, Image, Spacer, StackDivider, Text, VStack } from '@chakra-ui/react';
 import { Popover, PopoverTrigger, PopoverContent, PopoverHeader, PopoverBody, PopoverArrow, PopoverCloseButton} from '@chakra-ui/react'
 import React from 'react';
 import icon from '../../assets/Logomark - White.svg';
@@ -9,20 +9,21 @@ const Possibility = (props) => {
 
   return(
     <>
-    <Box alignContent={'center'} shadow='md' ref={props.scrollToRecipe}
-      border='1px' borderColor={'gray.200'} margin='30px'>
-      <VStack divider={<StackDivider borderColor='gray.200' />} spacing={4}>
-        <Box shadow='md'>
-          <Heading as='h2' size='lg' textAlign='center'>
-            {recipe.name}
-          </Heading>
-          <Text fontSize={'xl'} align='center'>{recipe.desc}</Text>
-        </Box>
-        <Spacer />
-        <ShowIngredients ingredients={recipe.ingredients} />
-        <ShowSteps steps={recipe.steps} myMeta={recipe.myMeta} />
-      </VStack>
-    </Box>
+    <Container centerContent bg='brand.200' boxShadow={'inner'}>
+      <Box margin={'30px'} boxShadow='dark-lg' bg='brand.100' ref={props.scrollToRecipe}>
+        <VStack divider={<StackDivider borderColor='brand.200' />} spacing={4} color={'brand.400'} margin='25px'>
+          <Box>
+            <Heading as='h2' size='lg' textAlign='center'>
+              {recipe.name}
+            </Heading>
+            <Text fontSize={'xl'} align='center'>{recipe.desc}</Text>
+          </Box>
+          <Spacer />
+          <ShowIngredients ingredients={recipe.ingredients} />
+          <ShowSteps steps={recipe.steps} myMeta={recipe.myMeta} />
+        </VStack>
+      </Box>
+    </Container>
     </>
   )
 }
@@ -85,10 +86,12 @@ function ShowSteps(props){
     <Text as='u' align='center' fontSize={'2xl'}>Steps</Text>
     <Grid templateColumns='repeat(auto-fit, minmax(200px, 1fr))' gap='20px'>
       {steps.map((step, index) => (
-        <GridItem key={index}>
-          <Text align='center' fontSize={'xl'}>{step}</Text><br />
-          {myMeta[index] && <><Icon viewBox='0 0 100 116'>{icon}</Icon>
-          <Text as='span' align='center' fontSize={'md'}>{myMeta[index]}</Text></>}
+        <GridItem key={index} boxShadow='md'>
+          <Text align='center' fontSize={'xl'}>{step}</Text>
+          {myMeta[index] && <><Flex boxShadow={'md'}>
+            <Image src={icon} boxSize={'50px'} />
+            <Text as='span' align='center' fontSize={'md'}>{myMeta[index]}</Text>
+          </Flex></>}
         </GridItem>
       ))}
     </Grid>

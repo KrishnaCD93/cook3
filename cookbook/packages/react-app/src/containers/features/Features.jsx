@@ -11,13 +11,13 @@ const Features = (props) => {
     'Cook pasta in boiling water for about 10 minutes. Cook until al dente in texture.','Heat up the sauce in a pan and add the pasta, roasted eggplant, and onion. Stir well.',
     'Garnish with basil and serve with cheese and pepper.'],
     myMeta: ['Olive oil is best for this recipe, but I also sometimes use ghee.', 'Poke small holes through the eggplant before placing the oven', 'Add a pinch of salt to the boiling water.', 
-    'Add a bit of turmeric, garam masala, and red chilli powder.', "coriander is a good replacement herb if using garam masala, don't add cheese."], meal: 'Serve with garlic bread.'};
+    'Add a bit of turmeric, garam masala, and red chilli powder.', "Coriander is a good replacement herb if using garam masala, don't add cheese."], meal: 'Serve with garlic bread.'};
   const recipe_2 = {name:'Omelette', desc: 'Omelette, Indian Style',
   ingredients: [{'Eggs, large': 2}, {'Ghee': '1 tblsp'}, {'Grated Cheese': '2 tblsp'},
     {'Tomatoes': 1}, {'Herbs': 'Assorted'}, {'Salt': 'To taste'}, {'Pepper': 'To taste'}],
-    steps: ['Beat the eggs in a bowl with salt and pepper. Beat thouroughly', 'Add ghee to a skillet on medium-low heat. Wait till the ghee warms up.','Add eggs to skillet. Cook until edges begin to set.',
+    steps: ['Beat the eggs in a bowl with salt and pepper. Beat thouroughly', 'Add ghee to a skillet on medium-low heat. Wait till the ghee warms up.','Add eggs to skillet. As the edges start to set, repeatedly push the edges towards the center of the pan to cook the egg evenly.',
     'Add cheese, tomatoes, and herbs. Cook until eggs are set but still soft.', 'Fold and serve.'],
-    myMeta: ['Replace pepper with chilli flakes.', '', 'As the edges start to set, repeatedly push the edges towards the center of the pan to cook the egg evenly.', 'Also add chopped onions and green peppers.', 'Serve with toast or roti.']};
+    myMeta: ['Replace pepper with chilli flakes or red chilli powder.', '', 'If eggs break, add turmeric and red chilli powder and scramble the eggs to make scrambled egg curry.', 'Also add chopped onions and green peppers.', 'Serve with toast or roti.']};
 
   return(
     <>
