@@ -94,7 +94,7 @@ function App() {
           <Features setShowRecipe={setShowRecipe} setRecipe={setRecipe} scrollToRecipe={scrollToRecipe} />
         </Canvas>
         {showRecipe && <a.div style={dropDown} ref={recipeRef}>
-          <Possibility recipeRef={recipeRef} recipe={recipe} />
+          <Possibility recipe={recipe} />
         </a.div>}
         <CTA />
         <Blog />

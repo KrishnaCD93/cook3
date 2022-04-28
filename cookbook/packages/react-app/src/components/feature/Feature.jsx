@@ -15,7 +15,9 @@ const Feature = ({recipe, setShowRecipe, setRecipe, position, scrollToRecipe }) 
     setActive(!active)
     setRecipe(recipe)
     setShowRecipe(!active)
-    scrollToRecipe()
+    setTimeout(() => {
+      scrollToRecipe()
+    }, 500)
   }
   // Return view, these are regular three.js elements expressed in JSX
   return (
