@@ -1,5 +1,4 @@
 import React from 'react';
-import { Canvas } from "@react-three/fiber"
 
 import { Feature } from '../../components';
 
@@ -21,12 +20,12 @@ const Features = (props) => {
     myMeta: ['Replace pepper with chilli flakes.', '', 'As the edges start to set, repeatedly push the edges towards the center of the pan to cook the egg evenly.', 'Also add chopped onions and green peppers.', 'Serve with toast or roti.']};
 
   return(
-    <Canvas>
-      <ambientLight />
-      <pointLight position={[10, 10, 10]} />
-      <Feature position={[-1.2, 0, 0]} recipe={recipe_1} {...props} />
-      <Feature position={[1.2, 0, 0]} recipe={recipe_2} {...props} />
-    </Canvas>
+    <>
+    <ambientLight />
+    <pointLight position={[10, 10, 10]} />
+    <Feature position={[-1.2, 0, 0]} recipe={recipe_1} {...props} />
+    <Feature position={[1.2, 0, 0]} recipe={recipe_2} {...props} />
+    </>
   )
 }
 

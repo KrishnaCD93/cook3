@@ -44,7 +44,7 @@ export default function Header(props) {
         <Stack spacing={3} direction={'column'}>
           <SignUp />
           <Button variant={'link'} size='sm' colorScheme={'brand'}
-            onClick={props.executeScroll}>
+            onClick={props.learnMoreScroll}>
             Learn more
           </Button>
         </Stack>

@@ -1,6 +1,7 @@
-import { Box, Flex, Grid, GridItem, Heading, Spacer, StackDivider, Text, VStack } from '@chakra-ui/react';
+import { Box, Flex, Grid, GridItem, Heading, Icon, Spacer, StackDivider, Text, VStack } from '@chakra-ui/react';
 import { Popover, PopoverTrigger, PopoverContent, PopoverHeader, PopoverBody, PopoverArrow, PopoverCloseButton} from '@chakra-ui/react'
 import React from 'react';
+import icon from '../../assets/Logomark - White.svg';
 
 const Possibility = (props) => {
   // Show recipe card
@@ -8,7 +9,7 @@ const Possibility = (props) => {
 
   return(
     <>
-    <Box alignContent={'center'} shadow='md' 
+    <Box alignContent={'center'} shadow='md' ref={props.scrollToRecipe}
       border='1px' borderColor={'gray.200'} margin='30px'>
       <VStack divider={<StackDivider borderColor='gray.200' />} spacing={4}>
         <Box shadow='md'>
@@ -85,8 +86,9 @@ function ShowSteps(props){
     <Grid templateColumns='repeat(auto-fit, minmax(200px, 1fr))' gap='20px'>
       {steps.map((step, index) => (
         <GridItem key={index}>
-          <Text align='center' fontSize={'xl'}>{step}</Text>
-          {myMeta[index] && <Text align='center' fontSize={'md'}>{myMeta[index]}</Text>}
+          <Text align='center' fontSize={'xl'}>{step}</Text><br />
+          {myMeta[index] && <><Icon viewBox='0 0 100 116'>{icon}</Icon>
+          <Text as='span' align='center' fontSize={'md'}>{myMeta[index]}</Text></>}
         </GridItem>
       ))}
     </Grid>

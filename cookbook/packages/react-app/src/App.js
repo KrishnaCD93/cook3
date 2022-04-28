@@ -5,8 +5,9 @@ import useWeb3Modal from "./hooks/useWeb3Modal";
 
 import { Footer, Blog, Possibility, Features, WhatCookbook, Header } from "./containers";
 import { CTA, Navbar } from "./components";
-import { Container } from "@chakra-ui/react";
 import { a, useSpring } from 'react-spring'
+
+import { Canvas } from "@react-three/fiber"
 
 function WalletButton({ provider, loadWeb3Modal, logoutOfWeb3Modal }) {
   const [account, setAccount] = useState("");
@@ -60,17 +61,23 @@ function WalletButton({ provider, loadWeb3Modal, logoutOfWeb3Modal }) {
 
 function App() {
   const [provider, loadWeb3Modal, logoutOfWeb3Modal] = useWeb3Modal();
-
-  const fadeIn = useSpring({ to: { opacity: 1 }, from: { opacity: 0 } })
-
-  const learnMoreRef = useRef(null);
-  const executeScroll = () => learnMoreRef.current.scrollIntoView(
-    { behavior: 'smooth', block: 'start' }
-  )
-
+  
   const [showRecipe, setShowRecipe] = useState(false);
   const [recipe, setRecipe] = useState({name: '', desc: '', ingredients: [], steps: [], myMeta: []});
+  
+  const fadeIn = useSpring({ to: { opacity: 1 }, from: { opacity: 0 } })
+  const dropDown = useSpring({
+    opacity: showRecipe ? 1 : 0,
+    marginTop: showRecipe ? 0 : -500
+  })
+  
+  const learnMoreRef = useRef(null);
+  const learnMoreScroll = () => learnMoreRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
   const recipeRef = useRef(null);
+  const scrollToRecipe = () => {
+    if (!recipeRef.current) return;
+    recipeRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   return (
     <div>
@@ -80,17 +87,15 @@ function App() {
       </HeaderStyle>
       <Body>
         <a.div style={fadeIn}>
-        <Header executeScroll={executeScroll} />
+        <Header learnMoreScroll={learnMoreScroll} />
         </a.div>
         <WhatCookbook learnMoreRef={learnMoreRef} />
-        <Container centerContent
-          spacing={{ base: 8, md: 10 }}
-          py={{ base: 20, md: 28 }}>
-          <Features setShowRecipe={setShowRecipe} setRecipe={setRecipe} />
-        </Container>
-        {showRecipe && <a.div style={fadeIn}>
+        <Canvas>
+          <Features setShowRecipe={setShowRecipe} setRecipe={setRecipe} scrollToRecipe={scrollToRecipe} />
+        </Canvas>
+        {showRecipe && <a.div style={dropDown} ref={recipeRef}>
           <Possibility recipeRef={recipeRef} recipe={recipe} />
-          </a.div>}
+        </a.div>}
         <CTA />
         <Blog />
         <Footer />

@@ -2,7 +2,7 @@
 import React, { useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 
-const Feature = ({recipe, setShowRecipe, setRecipe, position}) => {
+const Feature = ({recipe, setShowRecipe, setRecipe, position, scrollToRecipe }) => {
   // This reference will give us direct access to the mesh
   const mesh = useRef()
   // Set up state for the hovered and active state
@@ -11,10 +11,11 @@ const Feature = ({recipe, setShowRecipe, setRecipe, position}) => {
   // Subscribe this component to the render-loop, rotate the mesh every frame
   useFrame((state, delta) => (mesh.current.rotation.x += 0.01))
   // Handle click event
-  const handleClick = (event) => {
+  const handleClick = () => {
     setActive(!active)
     setRecipe(recipe)
     setShowRecipe(!active)
+    scrollToRecipe()
   }
   // Return view, these are regular three.js elements expressed in JSX
   return (
