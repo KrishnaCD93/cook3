@@ -1,4 +1,5 @@
-import { Box, Grid, GridItem, Heading, Spacer, StackDivider, Text, VStack } from '@chakra-ui/react';
+import { Box, Flex, Grid, GridItem, Heading, Spacer, StackDivider, Text, VStack } from '@chakra-ui/react';
+import { Popover, PopoverTrigger, PopoverContent, PopoverHeader, PopoverBody, PopoverArrow, PopoverCloseButton} from '@chakra-ui/react'
 import React from 'react';
 
 const Possibility = (props) => {
@@ -7,18 +8,68 @@ const Possibility = (props) => {
 
   return(
     <>
-    <Box alignContent={'center'} shadow='md' ref={props.recipeRef} key={recipe.name} 
+    <Box alignContent={'center'} shadow='md' 
       border='1px' borderColor={'gray.200'} margin='30px'>
       <VStack divider={<StackDivider borderColor='gray.200' />} spacing={4}>
-        <Box><Heading as='h2' size='lg' textAlign='center'>
-          {recipe.name}
-        </Heading>
-        <Text fontSize={'xl'} align='center'>{recipe.desc}</Text></Box>
-        <ShowIngredients ingredients={recipe.ingredients} />
+        <Box shadow='md'>
+          <Heading as='h2' size='lg' textAlign='center'>
+            {recipe.name}
+          </Heading>
+          <Text fontSize={'xl'} align='center'>{recipe.desc}</Text>
+        </Box>
         <Spacer />
+        <ShowIngredients ingredients={recipe.ingredients} />
         <ShowSteps steps={recipe.steps} myMeta={recipe.myMeta} />
       </VStack>
     </Box>
+    </>
+  )
+}
+
+function ShowIngredients(props){
+  // Map each object in the ingredients array to arrays of ingredients and quantities
+  let ingredients = props.ingredients;
+  let ingredientList = [];
+  let ingredientValues = [];
+  
+  for(let i = 0; i < ingredients.length; i++){
+    ingredientList.push(Object.keys(ingredients[i]));
+    ingredientValues.push(Object.values(ingredients[i]));
+  }
+
+  return(
+    <>
+    <Text as='u' align='center' fontSize={'2xl'}>Ingredients</Text>
+    <Flex justifyContent='center' alignItems='center' wrap={'wrap'}>
+      {ingredientList.map((ingredient, index) => (
+        <>
+        <Box key={index} p={'20px'}>
+          <Popover>
+            <PopoverTrigger>
+              <Text as='button' align='center' fontSize={'xl'}>{ingredient}</Text>
+            </PopoverTrigger>
+            <ShowValues ingredient={ingredient} ingredientValues={ingredientValues} index={index} />
+          </Popover>
+          <Spacer />
+        </Box>
+        </>
+      ))}
+    </Flex>
+    </>
+  )
+}
+
+function ShowValues(props){
+  // Show the quantity each ingredient
+  let values = props.ingredientValues[props.index];
+  return(
+    <>
+    <PopoverContent bg='brand.100'>
+      <PopoverArrow />
+      <PopoverCloseButton />
+      <PopoverHeader>{props.ingredient}</PopoverHeader>
+      <PopoverBody>Quantity: {values}</PopoverBody>
+    </PopoverContent>
     </>
   )
 }
@@ -30,36 +81,14 @@ function ShowSteps(props){
 
   return(
     <>
-    <Text align='center' fontSize={'2xl'}>Steps</Text>
-    <Grid gridTemplateColumns='repeat(auto-fit, minmax(200px, 1fr))' gridGap='20px'>
+    <Text as='u' align='center' fontSize={'2xl'}>Steps</Text>
+    <Grid templateColumns='repeat(auto-fit, minmax(200px, 1fr))' gap='20px'>
       {steps.map((step, index) => (
         <GridItem key={index}>
           <Text align='center' fontSize={'xl'}>{step}</Text>
           {myMeta[index] && <Text align='center' fontSize={'md'}>{myMeta[index]}</Text>}
         </GridItem>
       ))}
-    </Grid>
-    </>
-  )
-}
-
-function ShowIngredients(props){
-  let ingredients = props.ingredients;
-
-  return (
-    <>
-    <Text align='center' fontSize={'2xl'}>Ingredients</Text>
-    <Grid gridTemplateColumns='1fr' gridGap='20px'>
-    {ingredients.map((ingredient, index) => (
-      <GridItem key={index}>
-          {Object.keys(ingredient).map((key, index) => (
-            <>
-            <Text align='center' fontSize='xl' key={index}>{key}</Text>
-            <Text align='center' fontSize='md'>{ingredient[key]}</Text>
-            </>
-          ))}
-      </GridItem>
-    ))}
     </Grid>
     </>
   )

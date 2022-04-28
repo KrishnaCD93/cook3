@@ -71,15 +71,6 @@ function App() {
   const [showRecipe, setShowRecipe] = useState(false);
   const [recipe, setRecipe] = useState({name: '', desc: '', ingredients: [], steps: [], myMeta: []});
   const recipeRef = useRef(null);
-  const executeScrollRecipe = () => {
-    try {
-      if(recipe){recipeRef.current.scrollIntoView(
-        { behavior: 'smooth', block: 'start' }
-      )}
-    } catch (err) {
-      console.error(err);
-    }
-  }
 
   return (
     <div>
@@ -95,7 +86,7 @@ function App() {
         <Container centerContent
           spacing={{ base: 8, md: 10 }}
           py={{ base: 20, md: 28 }}>
-          <Features executeScrollRecipe={executeScrollRecipe} setShowRecipe={setShowRecipe} setRecipe={setRecipe} />
+          <Features setShowRecipe={setShowRecipe} setRecipe={setRecipe} />
         </Container>
         {showRecipe && <a.div style={fadeIn}>
           <Possibility recipeRef={recipeRef} recipe={recipe} />
