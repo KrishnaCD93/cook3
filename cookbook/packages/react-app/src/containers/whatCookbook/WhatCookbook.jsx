@@ -14,9 +14,9 @@ const WhatCookbook = (props) => {
               </Box>
               <Box>
                 <Text color={'brand.800'} fontSize='md' align={'center'}>
-                  We are growing a social network of home chefs who want to share their recipe ideas 
-                  with their community. We are building a platform where users can create recipes together and
-                  compose meals that they can share with their friends. 
+                  Cookbook is a social network for home chefs who want to share recipes 
+                  with their community. We are building a platform where you can create recipes
+                  and compose new meal ideas together with your community. 
                 </Text>
               </Box>
             </SimpleGrid>
@@ -38,7 +38,7 @@ const WhatCookbook = (props) => {
               <Text fontSize='4xl' color='brand.400'>Create</Text>
               <Divider />
               <Text color='brand.800' fontSize='md' align={'center'}>
-                Use our visual builder to build beautiful recipes. Map out the ingredients, methods, and tools used.
+                Use our visual builder to build beautiful recipe collections. Map out the ingredients, methods, and tools used.
                 Simplify complexity and capture nuance.
               </Text>
             </VStack>
@@ -49,19 +49,19 @@ const WhatCookbook = (props) => {
               <Text fontSize='4xl' color='brand.400'>Discover</Text>
               <Divider />
               <Text color='brand.800' fontSize='md' align={'center'}>
-                Discover new recipes and add them to your collection. 
-                Compose new meals and add variety to the marketplace of ideas.
+                Discover new recipes and meta skills. 
+                Compose new meals and add your unique taste to the marketplace of ideas.
               </Text>
             </VStack>
           </Box>
           <br />
           <Box>
             <VStack spacing={4}>
-              <Text fontSize='4xl' color='brand.400'>Monetize</Text>
+              <Text fontSize='4xl' color='brand.400'>Trade</Text>
               <Divider />
               <Text color='brand.800' fontSize='md' align={'center'}>
-                Share your recipes with your friends and the community. Token gate access and interactions.
-                Reward your community with appreciation tokens for interacting with your cookbook.
+                Trade your ideas and meta skills learned from experiences in the kitchen. 
+                Rank up your skills and create new recipes.
               </Text>
             </VStack>
           </Box>

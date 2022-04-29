@@ -83,7 +83,7 @@ function App() {
     <div>
       <HeaderStyle>
         <Navbar />
-        <WalletButton provider={provider} loadWeb3Modal={loadWeb3Modal} logoutOfWeb3Modal={logoutOfWeb3Modal} />
+        {/* <WalletButton provider={provider} loadWeb3Modal={loadWeb3Modal} logoutOfWeb3Modal={logoutOfWeb3Modal} /> */}
       </HeaderStyle>
       <Body>
         <a.div style={fadeIn}>

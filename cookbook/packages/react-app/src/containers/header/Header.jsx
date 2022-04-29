@@ -36,9 +36,9 @@ export default function Header(props) {
           fontWeight={600}
           fontSize={{ base: '3xl', sm: '4xl', md: '6xl' }}
           lineHeight={'110%'} color='gray.300'>
-          Make recipes <br />
+          Create recipe collections<br />
           <Text as={'span'} color={'brand.700'}>
-            with your meta
+            and share your cooking meta
           </Text>
         </Heading>
         <Stack spacing={3} direction={'column'}>

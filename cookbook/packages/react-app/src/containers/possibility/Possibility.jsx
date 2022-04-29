@@ -101,13 +101,13 @@ function ShowSteps(props){
           <Spacer />
           <Text color={'brand.800'} align='center' fontSize={'xl'}>{stepsTrigger[index]}</Text>
           <Spacer />
-          {myMeta[index] && <><Flex boxShadow={'sm'} spacing={4} alignItems='center' justifyContent='center'>
+          {myMeta[index] && <><Flex bg='brand.400' boxShadow={'sm'} spacing={4} alignItems='center' justifyContent='center'>
             <VStack spacing={0}>
-              <Text color={'brand.400'} align='center' fontSize={'xs'}>My</Text>
+              <Text color={'brand.800'} align='center' fontSize={'xs'}>My</Text>
               <Image src={icon} boxSize={'50px'} />
-              <Text color={'brand.400'} align='center' fontSize={'xs'}>Meta</Text>
+              <Text color={'brand.800'} align='center' fontSize={'xs'}>Meta</Text>
             </VStack>
-            <Text color={'brand.400'} as='span' align='center' fontSize={'md'}>{myMeta[index]}</Text>
+            <Text color={'brand.800'} as='span' align='center' fontSize={'md'}>{myMeta[index]}</Text>
           </Flex></>}
         </GridItem>
       ))}
