@@ -59,6 +59,7 @@ function SignUp() {
   return (
     <>
       <Button onClick={onOpen}
+      size='lg'
       rounded={'full'}
       px={6}
       colorScheme={'brand'}

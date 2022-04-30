@@ -3,8 +3,8 @@ import React from 'react';
 
 const WhatCookbook = (props) => {
   return(
-    <Container centerContent bg='brand.200' boxShadow={'inner'}>
-      <Box margin={'30px'} boxShadow='dark-lg' bg='brand.100' ref={props.learnMoreRef}>
+    <Container centerContent bg='brand.200' boxShadow={'inner'} ref={props.learnMoreRef}>
+      <Box margin={'30px'} boxShadow='dark-lg' bg='brand.100'>
         <Flex alignItems='baseline' margin='30px'>
           <VStack spacing={4}>
           <HStack>
@@ -16,7 +16,8 @@ const WhatCookbook = (props) => {
                 <Text color={'brand.800'} fontSize='md' align={'center'}>
                   Cookbook is a social network for home chefs who want to share recipes 
                   with their community. We are building a platform where you can create recipes
-                  and compose new meal ideas together with your community. 
+                  and compose new meal ideas together with your community. This app is for you if 
+                  you like to cook variations of your favorite recipes and talk about your experiences.
                 </Text>
               </Box>
             </SimpleGrid>

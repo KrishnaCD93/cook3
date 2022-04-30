@@ -5,8 +5,11 @@ import ApolloClient from "apollo-boost";
 import { ChakraProvider } from '@chakra-ui/react'
 import { extendTheme } from "@chakra-ui/react"
 
-import App from "./App";
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import App from "./App";
+import CreateRecipe from "./pages/CreateRecipe";
+import Home from "./pages/Home";
 
 // You should replace this url with your own and put it into a .env file
 // See all subgraphs: https://thegraph.com/explorer/
@@ -32,7 +35,22 @@ const theme = extendTheme({
 createRoot(document.getElementById('root')).render(
   <ApolloProvider client={client}>
     <ChakraProvider theme={theme}>
-      <App tab='home' />
+      <Router>
+        <Routes>
+          <Route path="/" element={<App />}>
+            <Route index element={<Home />} />
+            <Route path="create" element={<CreateRecipe />} />
+            <Route
+              path="*"
+              element={
+                <main style={{ padding: "1rem" }}>
+                  <p>There's nothing here!</p>
+                </main>
+              }
+            />
+          </Route>
+        </Routes>
+      </Router>
     </ChakraProvider>
   </ApolloProvider>,
 );
