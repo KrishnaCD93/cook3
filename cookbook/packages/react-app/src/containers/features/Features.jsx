@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { Feature } from '../../components';
 
 const recipe_1 = {name: 'Eggplant Pasta', desc: 'Indian Style Eggplant Pasta',
@@ -27,13 +26,32 @@ const recipe_3 = {name: 'Vegetable Stir Fry', desc: 'Vegetable Stir Fry, Indian 
   'Add red chilli powder, turmeric, and salt.', 'Stir and reduce the water.', 'Pour a bit of sesame oil on the dish.']};
 
 const Features = (props) => {
-  
+  const url_1 = FeatureImage({ name: recipe_1.name, desc: recipe_1.desc, metaSkillCount: recipe_1.myMeta.length });
+  const url_2 = FeatureImage({ name: recipe_2.name, desc: recipe_2.desc, metaSkillCount: recipe_2.myMeta.length });
+  const url_3 = FeatureImage({ name: recipe_3.name, desc: recipe_3.desc, metaSkillCount: recipe_3.myMeta.length });
+
   return(
     <>
-    <Feature position={[-6, 0, 0]} args={[4, 4]} recipe={recipe_1} {...props} />
-    <Feature position={[0, 0, 0]} args={[4, 4]} recipe={recipe_2} {...props} />
-    <Feature position={[6, 0, 0]} args={[4, 4]} recipe={recipe_3} {...props} />
+    <Feature position={[-6, 0, 0]} args={[4, 4]} recipe={recipe_1} url={url_1} {...props} />
+    <Feature position={[0, 0, 0]} args={[4, 4]} recipe={recipe_2} url={url_2} {...props} />
+    <Feature position={[6, 0, 0]} args={[4, 4]} recipe={recipe_3} url={url_3} {...props} />
     </>
+  )
+}
+
+// Draw an svg with the recipe name as the text
+function FeatureImage({ name, desc, metaSkillCount }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350">
+      <style>
+        {`.base { fill: white; font-family: serif; font-size: 14px; }
+        .skill { fill: white; font-family: serif; font-size: 10px; }`}
+      </style>
+      <rect width="100%" height="100%" fill="black" />
+      <text x="50%" y="50%" class="base" dominant-baseline="middle" text-anchor="middle">{name}</text>
+      <text x="50%" y="60%" class="base" dominant-baseline="middle" text-anchor="middle">{desc}</text>
+      <text x="50%" y="75%" class="skill" dominant-baseline="middle" text-anchor="middle">Meta Skills: {metaSkillCount}</text>
+    </svg>
   )
 }
 

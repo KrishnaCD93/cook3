@@ -4,7 +4,7 @@ import { Stack, Flex, Button, Text, VStack, useBreakpointValue } from '@chakra-u
 const CTA = (props) => {
   // On handle get started, link to Create Recipe page
   const handleGetStarted = () => {
-    window.location.href = '/create-recipe';
+    window.location.href = '/create';
   }
 
   return (
@@ -27,7 +27,7 @@ const CTA = (props) => {
             fontWeight={700}
             lineHeight={1.2}
             fontSize={useBreakpointValue({ base: '3xl', md: '4xl' })}>
-            Share your favourite cooking experiences and show off your meta skills
+            Share your favourite cooking experiences and express your creativity
           </Text>
           <Stack direction={'row'}>
             <Button onClick={handleGetStarted}

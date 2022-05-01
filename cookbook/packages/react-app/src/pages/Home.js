@@ -29,7 +29,9 @@ const Home = () => {
     <Header learnMoreScroll={learnMoreScroll} />
     </a.div>
     <WhatCookbook learnMoreRef={learnMoreRef} />
-    <Canvas>
+    <Canvas dpr={[1, 1.5]} camera={{ position: [0, 0, 15] }}>
+      <color attach="background" args={['black']} />
+      <ambientLight />
       <Features setShowRecipe={setShowRecipe} setRecipe={setRecipe} scrollToRecipe={scrollToRecipe} />
     </Canvas>
     {showRecipe && <a.div style={dropDown} ref={recipeRef}>
