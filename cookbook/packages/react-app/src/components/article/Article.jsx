@@ -8,7 +8,7 @@ const Article = (props) => {
   // console.log(content);
   return(
     <ReactMarkdown>
-      {post.content}
+      {post}
     </ReactMarkdown>
   ) 
 }
