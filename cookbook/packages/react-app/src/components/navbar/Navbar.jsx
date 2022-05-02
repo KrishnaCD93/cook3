@@ -10,7 +10,7 @@ const Navbar = ({ isVisible, children }) => {
         <Link as={ReactLink} to="/">Home</Link>
       </Button>
       <Button>
-        <Link as={ReactLink} to="/about">About</Link>
+        <Link as={ReactLink} to="/blog">Blog</Link>
       </Button>
       <Button>
         <Link as={ReactLink} to="/create">Create</Link>

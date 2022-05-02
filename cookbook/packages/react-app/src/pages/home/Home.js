@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
-import { Footer, Blog, Possibility, Features, WhatCookbook, Header } from "../containers";
-import { CTA } from "../components";
+import { Footer, Blog, Possibility, Features, WhatCookbook, Header } from "../../containers";
+import { CTA } from "../../components";
 import { a, useSpring } from 'react-spring';
 import { Canvas } from "@react-three/fiber";
 
