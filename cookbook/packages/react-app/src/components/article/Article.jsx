@@ -1,15 +1,12 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm'
 
 const Article = (props) => {
-  const { post } = props;
-  // Grab content value from the first key in the post object
-  // const content = post[Object.keys(post)[0]];
-  // console.log(content);
   return(
-    <ReactMarkdown>
-      {post}
-    </ReactMarkdown>
+    <>{props.post && <ReactMarkdown remarkPlugins={[remarkGfm]}>
+      {props.post}
+    </ReactMarkdown>}</>
   ) 
 }
 
