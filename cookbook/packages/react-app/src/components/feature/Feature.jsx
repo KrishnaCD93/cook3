@@ -4,7 +4,6 @@ import { Image, RoundedBox } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import imageUrl from '../../assets/Logomark - Sorrell Brown.png'
 
-
 const Feature = ({args, recipe, setShowRecipe, setRecipe, position, scrollToRecipe, url, ...props }) => {
   // This reference will give us direct access to the mesh
   const mesh = useRef()
@@ -30,7 +29,7 @@ const Feature = ({args, recipe, setShowRecipe, setRecipe, position, scrollToReci
   return (
     <>
     <RoundedBox args={args} radius={0.05} smoothness={4}
-      position={position}
+      position={position} 
       ref={mesh}
       scale={hovered ? 1.5 : 1}
       onClick={e => handleClick(e)}

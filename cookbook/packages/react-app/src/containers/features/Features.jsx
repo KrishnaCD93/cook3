@@ -1,5 +1,7 @@
+import { Text } from '@react-three/drei';
 import React from 'react';
 import { Feature } from '../../components';
+import { useThree } from '@react-three/fiber';
 
 const recipe_1 = {name: 'Eggplant Pasta', desc: 'Indian Style Eggplant Pasta',
 ingredients: [{'Eggplant, long': 2}, {'Pasta': 'As needed'}, {'Onion': 1}, 
@@ -26,15 +28,26 @@ const recipe_3 = {name: 'Vegetable Stir Fry', desc: 'Vegetable Stir Fry, Indian 
   'Add red chilli powder, turmeric, and salt.', 'Stir and reduce the water.', 'Pour a bit of sesame oil on the dish.']};
 
 const Features = (props) => {
-  const url_1 = FeatureImage({ name: recipe_1.name, desc: recipe_1.desc, metaSkillCount: recipe_1.myMeta.length });
-  const url_2 = FeatureImage({ name: recipe_2.name, desc: recipe_2.desc, metaSkillCount: recipe_2.myMeta.length });
-  const url_3 = FeatureImage({ name: recipe_3.name, desc: recipe_3.desc, metaSkillCount: recipe_3.myMeta.length });
+  let url_1 = FeatureImage({ name: recipe_1.name, desc: recipe_1.desc, metaSkillCount: recipe_1.myMeta.length });
+  let url_2 = FeatureImage({ name: recipe_2.name, desc: recipe_2.desc, metaSkillCount: recipe_2.myMeta.length });
+  let url_3 = FeatureImage({ name: recipe_3.name, desc: recipe_3.desc, metaSkillCount: recipe_3.myMeta.length });
 
+
+  const { width } = useThree((state) => state.viewport)
   return(
     <>
-    <Feature position={[-6, 0, 0]} args={[4, 4]} recipe={recipe_1} url={url_1} {...props} />
-    <Feature position={[0, 0, 0]} args={[4, 4]} recipe={recipe_2} url={url_2} {...props} />
-    <Feature position={[6, 0, 0]} args={[4, 4]} recipe={recipe_3} url={url_3} {...props} />
+    <color attach="background" args={['black']} />
+    <ambientLight />
+    <Text position={[0, 5, -5]}
+      lineHeight={0.8}
+      font="/Ki-Medium.ttf"
+      fontSize={width / 12}
+      material-toneMapped={false}
+      anchorX="center"
+      anchorY="middle">View Krishna's Cookbook!</Text>
+    <Feature position={[-6, -2.5, 0]} args={[4, 4]} recipe={recipe_1} url={url_1} {...props} />
+    <Feature position={[0, -2.5, 0]} args={[4, 4]} recipe={recipe_2} url={url_2} {...props} />
+    <Feature position={[6, -2.5, 0]} args={[4, 4]} recipe={recipe_3} url={url_3} {...props} />
     </>
   )
 }

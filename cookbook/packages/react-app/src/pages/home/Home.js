@@ -1,8 +1,10 @@
 import React, { useRef, useState } from 'react';
-import { Footer, Blog, Possibility, Features, WhatCookbook, Header } from "../../containers";
+import { Footer, Possibility, Features, WhatCookbook, Header } from "../../containers";
+import { Blogposts } from '../../pages';
 import { CTA } from "../../components";
 import { a, useSpring } from 'react-spring';
 import { Canvas } from "@react-three/fiber";
+import { Container } from '@chakra-ui/react';
 
 
 const Home = () => {
@@ -29,16 +31,16 @@ const Home = () => {
     <Header learnMoreScroll={learnMoreScroll} />
     </a.div>
     <WhatCookbook learnMoreRef={learnMoreRef} />
-    <Canvas dpr={[1, 1.5]} camera={{ position: [0, 0, 15] }}>
-      <color attach="background" args={['black']} />
-      <ambientLight />
-      <Features setShowRecipe={setShowRecipe} setRecipe={setRecipe} scrollToRecipe={scrollToRecipe} />
-    </Canvas>
+    <Container spacing={{ base: 8, md: 10 }} py={{ base: 20, md: 28 }}>
+      <Canvas dpr={[1, 2]} camera={{ position: [0, 0, 10], fov: 75 }}>
+        <Features setShowRecipe={setShowRecipe} setRecipe={setRecipe} scrollToRecipe={scrollToRecipe} />
+      </Canvas>
+    </Container>
     {showRecipe && <a.div style={dropDown} ref={recipeRef}>
       <Possibility recipe={recipe} />
     </a.div>}
     <CTA />
-    <Blog />
+    <Blogposts />
     <Footer />
     </>
   );

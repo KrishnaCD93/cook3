@@ -9,8 +9,6 @@ const Navbar = ({ isVisible, children }) => {
       <Button>
         <Link as={NavLink} style={({ isActive }) => {
             return {
-              display: "block",
-              margin: "1rem 0",
               color: isActive ? "#c9b68e" : "",
             };
           }} to="/">Home</Link>
@@ -18,8 +16,6 @@ const Navbar = ({ isVisible, children }) => {
       <Button>
         <Link as={NavLink} style={({ isActive }) => {
             return {
-              display: "block",
-              margin: "1rem 0",
               color: isActive ? "#c9b68e" : "",
             };
           }} to="/blog">Blog</Link>
@@ -27,8 +23,6 @@ const Navbar = ({ isVisible, children }) => {
       <Button>
         <Link as={NavLink} style={({ isActive }) => {
             return {
-              display: "block",
-              margin: "1rem 0",
               color: isActive ? "#c9b68e" : "",
             };
           }} to="/create">Create</Link>
@@ -38,8 +32,6 @@ const Navbar = ({ isVisible, children }) => {
     <Button variant='link'>
       <Link as={NavLink} style={({ isActive }) => {
             return {
-              display: "block",
-              margin: "1rem 0",
               color: isActive ? "#c9b68e" : "",
             };
           }} to="/profile">Profile</Link>

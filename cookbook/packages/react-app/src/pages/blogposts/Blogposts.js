@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Arweave from 'arweave';
-import { Container, Flex, Link } from '@chakra-ui/react';
+import { Box, Container, Flex, SimpleGrid, Heading, Link, Text } from '@chakra-ui/react';
 import { NavLink, Outlet } from 'react-router-dom';
+import { Blog } from '../../components';
 
 // initialize a gateway connection
 const arweave = Arweave.init({
@@ -14,11 +15,10 @@ const blogs = [];
 
 const Blogposts = () => {
   const [posts, setPosts] = useState([]);
-
   const transactionId = useMemo(() => 
   ['l-PpQgwbZb4ihP6C4fSHBKcOf3fsMcQTa6fEkSPNGms', 'dNnTBwKmhDw_l-czSC4EYnHQNNBBqvR87TeAKxgwKHY']
   , []);
-
+  
   async function readFromArweave(id) {
     if (!id) return;
     arweave.transactions.getData(id, {
@@ -35,10 +35,14 @@ const Blogposts = () => {
   }, [transactionId])
 
   return (
-    <>{posts && <Container>
-      <Flex m={'20px'} p={'20px'}>
+    <>{posts && <Container centerContent>
+      <Heading>Blog Posts</Heading>
+      <Text>Read about the product and the vision</Text>
+      <Flex>
         <LinkBlogs posts={posts} />
       </Flex>
+      <SimpleGrid gap='20px'>
+      </SimpleGrid>
       <Flex m='20px' p='20px'>
         <Outlet />
       </Flex>
@@ -54,19 +58,20 @@ function LinkBlogs(props) {
   return (
     <>
       {blogs && blogs.map((post, index) => (
+        <Box as='button' m='5px' p='5px' key={index}>
         <Link as={NavLink}
           style={({ isActive }) => {
             return {
-              display: "block",
-              margin: "1rem 0",
               color: isActive ? "#c9b68e" : "",
             };
           }}
           to={`/blog/${post.digest}`}
-          key={index}
+          key={post.digest}
         >
           {post.content.title}
         </Link>
+        <Blog post={post} />
+        </Box>
       ))}
     </>
   );

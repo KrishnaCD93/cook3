@@ -9,7 +9,6 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import App from "./App";
 import { Blogposts, Blogpost, CreateRecipe, Home } from "./pages";
-import { Blog } from "./containers";
 
 // You should replace this url with your own and put it into a .env file
 // See all subgraphs: https://thegraph.com/explorer/
@@ -41,7 +40,6 @@ createRoot(document.getElementById('root')).render(
             <Route index element={<Home />} />
             <Route path="create" element={<CreateRecipe />} />
             <Route path="blog" element={<Blogposts />}>
-              <Route index element={<Blog />} />
               <Route path=":digest" element={<Blogpost />} />
             </Route>
             <Route
