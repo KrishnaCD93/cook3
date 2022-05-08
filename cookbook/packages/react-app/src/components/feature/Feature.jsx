@@ -1,8 +1,9 @@
 
 import React, { useRef, useState } from 'react'
-import { Image, RoundedBox } from '@react-three/drei'
+import { Image, RoundedBox, Text } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
-import imageUrl from '../../assets/Logomark - Sorrell Brown.png'
+import imageUrl from '../../assets/Stir Fry/7.jpg'
+import { useThree } from '@react-three/fiber'
 
 const Feature = ({args, recipe, setShowRecipe, setRecipe, position, scrollToRecipe, url, ...props }) => {
   // This reference will give us direct access to the mesh
@@ -14,7 +15,9 @@ const Feature = ({args, recipe, setShowRecipe, setRecipe, position, scrollToReci
   useFrame((state, delta) =>  {
     mesh.current.material.zoom = 1
     mesh.current.material.grayscale = active? 0 : 0.5
+    mesh.current.material.color.set('#AD9870')
   })
+  const { width } = useThree((state) => state.viewport)
 
   // Handle click event
   const handleClick = () => {
@@ -31,10 +34,17 @@ const Feature = ({args, recipe, setShowRecipe, setRecipe, position, scrollToReci
     <RoundedBox args={args} radius={0.05} smoothness={4}
       position={position} 
       ref={mesh}
-      scale={hovered ? 1.5 : 1}
+      scale={hovered ? 1.25 : 1}
       onClick={e => handleClick(e)}
       onPointerOver={(event) => setHover(true)}
       onPointerOut={(event) => setHover(false)}>
+      <Text position={[position[0], position[1] - 2.5, position[2] + 0.5]}
+      lineHeight={0.4}
+      font="/Ki-Medium.ttf"
+      fontSize={width / 30}
+      material-toneMapped={false}
+      anchorX="center"
+      anchorY="middle">{recipe.name}</Text>
       <Image url={imageUrl} ref={mesh} {...props} />
     </RoundedBox>
     </>

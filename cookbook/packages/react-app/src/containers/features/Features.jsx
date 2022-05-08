@@ -36,18 +36,18 @@ const Features = (props) => {
   const { width } = useThree((state) => state.viewport)
   return(
     <>
-    <color attach="background" args={['black']} />
+    <color attach="background" args={['#282c34']} />
     <ambientLight />
-    <Text position={[0, 5, -5]}
+    <Text position={[0, 15, -5]}
       lineHeight={0.8}
       font="/Ki-Medium.ttf"
       fontSize={width / 12}
       material-toneMapped={false}
       anchorX="center"
       anchorY="middle">View Krishna's Cookbook!</Text>
-    <Feature position={[-6, -2.5, 0]} args={[4, 4]} recipe={recipe_1} url={url_1} {...props} />
-    <Feature position={[0, -2.5, 0]} args={[4, 4]} recipe={recipe_2} url={url_2} {...props} />
-    <Feature position={[6, -2.5, 0]} args={[4, 4]} recipe={recipe_3} url={url_3} {...props} />
+    <Feature position={[-30, -5, 0]} args={[10, 10]} recipe={recipe_1} url={url_1} {...props} />
+    <Feature position={[0, -5, 0]} args={[10, 10]} recipe={recipe_2} url={url_2} {...props} />
+    <Feature position={[30, -5, 0]} args={[10, 10]} recipe={recipe_3} url={url_3} {...props} />
     </>
   )
 }

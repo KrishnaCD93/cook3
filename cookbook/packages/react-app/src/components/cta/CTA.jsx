@@ -1,10 +1,16 @@
 import React from 'react';
 import { Stack, Flex, Button, Text, VStack, useBreakpointValue } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
 
 const CTA = (props) => {
+  let nav = useNavigate()
   // On handle get started, link to Create Recipe page
   const handleGetStarted = () => {
-    window.location.href = '/create';
+    nav('/create');
+  }
+
+  const handleShowMore = () => {
+    nav('/blog');
   }
 
   return (
@@ -37,7 +43,7 @@ const CTA = (props) => {
               _hover={{ bg: 'brand.500' }}>
               Get Started
             </Button>
-            <Button onClick={props.blogScroll}
+            <Button onClick={handleShowMore}
               bg={'whiteAlpha.300'}
               rounded={'full'}
               color={'brand.800'}
