@@ -38,10 +38,10 @@ createRoot(document.getElementById('root')).render(
         <Routes>
           <Route path="/" element={<App />}>
             <Route index element={<Home />} />
-            <Route path="create" element={<CreateRecipe />} />
             <Route path="blog" element={<Blogposts />}>
               <Route path=":digest" element={<Blogpost />} />
             </Route>
+            <Route path="create" element={<CreateRecipe />} />
             <Route
               path="*"
               element={

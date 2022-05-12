@@ -1,10 +1,11 @@
 import { Button, ButtonGroup, Link, Spacer } from '@chakra-ui/react';
 import React from 'react';
 import { NavLink } from "react-router-dom";
+import { Header } from "../index"
 
 const Navbar = ({ isVisible, children }) => {
   return(
-    <>
+    <Header>
     <ButtonGroup variant={'link'}>
       <Button>
         <Link as={NavLink} style={({ isActive }) => {
@@ -37,7 +38,7 @@ const Navbar = ({ isVisible, children }) => {
           }} to="/profile">Profile</Link>
     </Button>
     {isVisible && {children}}
-    </>
+    </Header>
   )
 }
 
