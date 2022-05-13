@@ -31,9 +31,9 @@ const Home = () => {
     <Header learnMoreScroll={learnMoreScroll} />
     </a.div>
     <WhatCookbook learnMoreRef={learnMoreRef} />
-    <Container py={{ base: 10, md: 18 }}>
+    <Container py={{ base: 15, md: 18 }} w='50%' h='50vh'>
       <Suspense fallback={null}>
-        <Canvas dpr={[1, 2]} camera={{ position: [0, 0, 20], fov: 95 }}>
+        <Canvas dpr={[1, 2]} camera={{ position: [0, 0, 35], fov: 110 }}>
           <Features setShowRecipe={setShowRecipe} setRecipe={setRecipe} scrollToRecipe={scrollToRecipe} />
         </Canvas>
       </Suspense>

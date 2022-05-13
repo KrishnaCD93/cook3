@@ -38,14 +38,12 @@ const Feature = ({args, recipe, setShowRecipe, setRecipe, position, scrollToReci
       onClick={e => handleClick(e)}
       onPointerOver={(event) => setHover(true)}
       onPointerOut={(event) => setHover(false)}>
-      <Text position={[position[0], position[1] - 2.5, position[2] + 0.5]}
-      lineHeight={0.4}
-      font="/Ki-Medium.ttf"
-      fontSize={width / 30}
-      material-toneMapped={false}
-      anchorX="center"
-      anchorY="middle">{recipe.name}</Text>
-      <Image url={imageUrl} ref={mesh} {...props} />
+      <Text position={[position[0], position[1] - 0.5, position[2] + 0.5]}
+        lineHeight={0.4}
+        fontSize={width / 30}
+        material-toneMapped={false}
+        anchorY="middle" ref={mesh}>{recipe.name}</Text>
+      {/* <Image url={imageUrl} {...props} /> */}
     </RoundedBox>
     </>
   )

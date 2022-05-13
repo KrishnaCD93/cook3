@@ -16,7 +16,7 @@ const blogs = [];
 const Blogposts = () => {
   const [posts, setPosts] = useState([]);
   const transactionId = useMemo(() => 
-  ['l-PpQgwbZb4ihP6C4fSHBKcOf3fsMcQTa6fEkSPNGms', 'dNnTBwKmhDw_l-czSC4EYnHQNNBBqvR87TeAKxgwKHY']
+  ['l-PpQgwbZb4ihP6C4fSHBKcOf3fsMcQTa6fEkSPNGms']
   , []);
   
   async function readFromArweave(id) {

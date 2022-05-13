@@ -45,9 +45,9 @@ const Features = (props) => {
       material-toneMapped={false}
       anchorX="center"
       anchorY="middle">View Krishna's Cookbook!</Text>
-    <Feature position={[-30, -5, 0]} args={[10, 10]} recipe={recipe_1} url={url_1} {...props} />
-    <Feature position={[0, -5, 0]} args={[10, 10]} recipe={recipe_2} url={url_2} {...props} />
-    <Feature position={[30, -5, 0]} args={[10, 10]} recipe={recipe_3} url={url_3} {...props} />
+    <Feature position={[-30, -5, 0]} args={[20, 20]} recipe={recipe_1} url={url_1} {...props} />
+    <Feature position={[0, -5, 0]} args={[20, 20]} recipe={recipe_2} url={url_2} {...props} />
+    <Feature position={[30, -5, 0]} args={[20, 20]} recipe={recipe_3} url={url_3} {...props} />
     </>
   )
 }

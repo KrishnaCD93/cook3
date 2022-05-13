@@ -1,20 +1,48 @@
-import { EditablePreview, useColorModeValue, IconButton, Input, useEditableControls, ButtonGroup, Editable, Tooltip, EditableInput, EditableTextarea, Heading, Container } from "@chakra-ui/react";
+import { EditablePreview, useColorModeValue, IconButton, Input, useEditableControls, ButtonGroup, Editable, Tooltip, EditableInput, EditableTextarea, Heading, Container, CSSReset } from "@chakra-ui/react";
 import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
-import React, {  useState } from 'react';
+import { useForm } from 'react-hook-form'
+import { FormErrorMessage, FormLabel, FormControl, Button } from '@chakra-ui/react'
+import React, { useState } from 'react';
 
 const CreateRecipe = () => {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [ingredients, setIngredients] = useState([]);
-  const [steps, setSteps] = useState([]);
-  
+  const [recipe, setRecipe] = useState({name: '', description: '', ingredients: [], steps: []});
+
+  const { handleSubmit, register, formState: { errors, isSubmitting }, } = useForm()
+
+  const onSubmit = (data) => {
+    console.log(data);
+    setRecipe(data);
+  }
+
   return (
+    <>
+    <CSSReset />
     <Container w='100%' h='100vh' centerContent>
       <Heading>Create Recipe</Heading>
-      <GetRecipeName setName={setName} />
-      <GetDescription setDescription={setDescription} />
-      <GetIngredients />
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <FormControl isInvalid={errors.name}>
+          <FormLabel htmlFor="name">
+            <GetRecipeName register={register} />
+          </FormLabel>
+          <FormLabel htmlFor="description">
+            <GetDescription register={register} />
+          </FormLabel>
+          <FormLabel htmlFor="ingredients">
+            <GetIngredients register={register} />
+          </FormLabel>
+          <FormLabel htmlFor="steps">
+            <GetSteps register={register} />
+          </FormLabel>
+          <FormErrorMessage>
+            {errors.name && errors.name.message}
+          </FormErrorMessage>
+        </FormControl>
+        <Button mt={4} colorScheme='teal' isLoading={isSubmitting} type='submit'>
+          Submit
+        </Button>
+      </form>
     </Container>
+    </>
   )
 }
 
@@ -22,8 +50,7 @@ function EditableControls() {
     const {
       isEditing,
       getSubmitButtonProps,
-      getCancelButtonProps,
-      getEditButtonProps
+      getCancelButtonProps
     } = useEditableControls();
 
     return isEditing ? (
@@ -54,7 +81,8 @@ function GetRecipeName(props) {
           }}
         />
       </Tooltip>
-      <Input outline py={2} px={4} as={EditableInput} onChange={(e) => props.setName(e.target.value)} />
+      <Input py={2} px={4} as={EditableInput} 
+      {...props.register('name', {required: 'Give your recipe a name'})} />
       <EditableControls />
     </Editable>
     </>
@@ -78,7 +106,8 @@ function GetDescription(props) {
           }}
         />
       </Tooltip>
-      <Input outline py={2} px={4} as={EditableTextarea} onChange={(e) => props.setDescription(e.target.value)} />
+      <Input py={2} px={4} as={EditableTextarea}
+        {...props.register('description')} />
       <EditableControls />
     </Editable>
     </>
@@ -87,6 +116,8 @@ function GetDescription(props) {
 
 // Function to get the ingredients in the recipe
 function GetIngredients(props) {
+  const [item, setItem] = useState({name: '', quantity: '', unit: '', nutritionalInfo: '', image: ''});
+  
   return (
     <div>
       <h1>Input Ingredients</h1>
@@ -101,7 +132,7 @@ function GetSteps(props) {
   const [myMeta, setMyMeta] = useState([]);
   
   // Function to get the action of each step in the recipe
-  function getAction(props) {
+  function GetAction(props) {
     return (
       <div>
         <h1>Input Action</h1>
@@ -110,7 +141,7 @@ function GetSteps(props) {
   }
 
 // Function to get the trigger for the next step in the recipe
-  function getTrigger(props) {
+  function GetTrigger(props) {
     return (
       <div>
         <h1>Input Trigger</h1>
@@ -119,7 +150,7 @@ function GetSteps(props) {
   }
 
   // Function to get the meta of the step
-  function getMyMeta(props) {
+  function GetMyMeta(props) {
     return (
       <div>
         <h1>Input Meta</h1>
