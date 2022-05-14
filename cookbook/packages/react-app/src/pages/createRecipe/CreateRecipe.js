@@ -1,17 +1,36 @@
-import { EditablePreview, useColorModeValue, IconButton, Input, useEditableControls, ButtonGroup, Editable, Tooltip, EditableInput, EditableTextarea, Heading, Container, CSSReset } from "@chakra-ui/react";
+import { EditablePreview, useColorModeValue, IconButton, Input, useEditableControls, ButtonGroup, Editable, Tooltip, EditableInput, EditableTextarea, Heading, Container, CSSReset, Flex, Box, Text } from "@chakra-ui/react";
 import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
-import { useForm } from 'react-hook-form'
+import { useForm, FormProvider, useFormContext } from 'react-hook-form'
 import { FormErrorMessage, FormLabel, FormControl, Button } from '@chakra-ui/react'
 import React, { useState } from 'react';
 
 const CreateRecipe = () => {
-  const [recipe, setRecipe] = useState({name: '', description: '', ingredients: [], steps: []});
+  const recipe = {name: '', description: '', ingredients: [], steps: []};
 
   const { handleSubmit, register, formState: { errors, isSubmitting }, } = useForm()
 
   const onSubmit = (data) => {
-    console.log(data);
-    setRecipe(data);
+    recipe.name = data.name
+    recipe.description = data.description
+    data.ingredients.forEach((ingredient) => {
+      if (ingredient.name) {
+        recipe.ingredients.push({
+          name: ingredient.name,
+          quantity: ingredient.quantity,
+          nutritionInfo: ingredient.nutritionInfo
+        })
+      }
+    })
+    data.steps.forEach((step) => {
+      if (step.action) {
+        recipe.steps.push({
+          action: step.action,
+          trigger: step.trigger,
+          myMeta: step.myMeta
+        })
+      }
+    })
+    console.log(recipe)
   }
 
   return (
@@ -19,28 +38,27 @@ const CreateRecipe = () => {
     <CSSReset />
     <Container w='100%' h='100vh' centerContent>
       <Heading>Create Recipe</Heading>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <FormControl isInvalid={errors.name}>
-          <FormLabel htmlFor="name">
-            <GetRecipeName register={register} />
-          </FormLabel>
-          <FormLabel htmlFor="description">
-            <GetDescription register={register} />
-          </FormLabel>
-          <FormLabel htmlFor="ingredients">
-            <GetIngredients register={register} />
-          </FormLabel>
-          <FormLabel htmlFor="steps">
-            <GetSteps register={register} />
-          </FormLabel>
-          <FormErrorMessage>
-            {errors.name && errors.name.message}
-          </FormErrorMessage>
-        </FormControl>
-        <Button mt={4} colorScheme='teal' isLoading={isSubmitting} type='submit'>
-          Submit
-        </Button>
-      </form>
+      <FormProvider {...{ register, errors, isSubmitting }}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <FormControl isInvalid={errors.name}>
+            <FormLabel htmlFor="name">
+              <GetRecipeName />
+            </FormLabel>
+            <FormLabel htmlFor="description">
+              <GetDescription />
+            </FormLabel>
+            <FormLabel htmlFor="ingredients">
+              <GetIngredients />
+            </FormLabel>
+            <FormLabel htmlFor="steps">
+              <GetSteps />
+            </FormLabel>
+          </FormControl>
+          <Button mt={4} colorScheme='brand' isLoading={isSubmitting} type='submit'>
+            Submit
+          </Button>
+        </form>
+      </FormProvider>
     </Container>
     </>
   )
@@ -65,11 +83,13 @@ function EditableControls() {
   }
 
 // Function to get recipe name
-function GetRecipeName(props) {
+function GetRecipeName() {
+  const { register, errors } = useFormContext();
   return (
     <>
+    <Text fontSize='2xl' fontWeight='bold'>Recipe Name</Text>
     <Editable
-      defaultValue="Recipe Name"
+      defaultValue="...name"
       isPreviewFocusable={true}
       selectAllOnFocus={false}>
       <Tooltip label="Click to add recipe name">
@@ -77,12 +97,15 @@ function GetRecipeName(props) {
           py={2}
           px={4}
           _hover={{
-            background: useColorModeValue("brand.100", "brand.400")
+            background: useColorModeValue("brand.400", "brand.600")
           }}
         />
       </Tooltip>
       <Input py={2} px={4} as={EditableInput} 
-      {...props.register('name', {required: 'Give your recipe a name'})} />
+      {...register('name', {required: 'Give your recipe a name'})} />
+      <FormErrorMessage>
+        {errors.name && errors.name.message}
+      </FormErrorMessage>
       <EditableControls />
     </Editable>
     </>
@@ -90,24 +113,29 @@ function GetRecipeName(props) {
 }
 
   // Function to get the recipe description
-function GetDescription(props) {
+function GetDescription() {
+  const { register, errors } = useFormContext();
   return (
     <>
+    <Text fontSize='2xl' fontWeight='bold'>Description</Text>
     <Editable
-      defaultValue="Recipe Description"
+      placeholder="...description"
       isPreviewFocusable={true}
       selectAllOnFocus={false}>
-      <Tooltip label="Add a short description of the dish">
+      <Tooltip label="Add a short description of the dish, not required">
         <EditablePreview
           py={2}
           px={4}
           _hover={{
-            background: useColorModeValue("brand.100", "brand.400")
+            background: useColorModeValue("brand.400", "brand.600")
           }}
         />
       </Tooltip>
       <Input py={2} px={4} as={EditableTextarea}
-        {...props.register('description')} />
+        {...register('description')} />
+        <FormErrorMessage>
+          {errors.name && errors.name.message}
+        </FormErrorMessage>
       <EditableControls />
     </Editable>
     </>
@@ -115,53 +143,213 @@ function GetDescription(props) {
 }
 
 // Function to get the ingredients in the recipe
-function GetIngredients(props) {
-  const [item, setItem] = useState({name: '', quantity: '', unit: '', nutritionalInfo: '', image: ''});
-  
+function GetIngredients() {
+  const [numItems, setNumItems] = useState(1);
+  const { register, errors } = useFormContext();
+
+  function GetName(props) {
+    return (
+      <Editable
+        defaultValue="...ingredient name"
+        isPreviewFocusable={true}
+        selectAllOnFocus={false}>
+        <Tooltip label="Add some ingredients">
+          <EditablePreview
+            py={2}
+            px={4}
+            _hover={{
+              background: useColorModeValue("brand.400", "brand.600")
+            }}
+          />
+        </Tooltip>
+        <Input py={2} px={4} as={EditableInput}
+          {...register(`ingredients[${props.index}].name`, {required: 'Add an ingredient'})} />
+        <FormErrorMessage>
+          {errors.name && errors.name.message}
+        </FormErrorMessage>
+        <EditableControls />
+      </Editable>
+    )
+  }
+
+  function GetAmount(props) {
+    return (
+      <Editable
+        defaultValue="...quantity"
+        isPreviewFocusable={true}
+        selectAllOnFocus={false}>
+        <Tooltip label="Add the quantity of the ingredient">
+          <EditablePreview
+            py={2}
+            px={4}
+            _hover={{
+              background: useColorModeValue("brand.400", "brand.600")
+            }}
+          />
+        </Tooltip>
+        <Input py={2} px={4} as={EditableInput}
+          {...register(`ingredients[${props.index}].quantity`, {required: 'Add a quantity'})} />
+        <FormErrorMessage>
+          {errors.name && errors.name.message}
+        </FormErrorMessage>
+        <EditableControls />
+      </Editable>
+    )
+  }
+
+  function GetNutrition(props) {
+    return (
+      <Editable
+        placeholder="...nutritional information"
+        isPreviewFocusable={true}
+        selectAllOnFocus={false}>
+        <Tooltip label="Add any nutritional info, not required">
+          <EditablePreview
+            py={2}
+            px={4}
+            _hover={{
+              background: useColorModeValue("brand.400", "brand.600")
+            }}
+          />
+        </Tooltip>
+        <Input py={2} px={4} as={EditableTextarea}
+          {...register(`ingredients[${props.index}].nutritionInfo`)} />
+        <EditableControls />
+      </Editable>
+    )
+  }
+
   return (
-    <div>
-      <h1>Input Ingredients</h1>
-    </div>
+    <>
+    <Text fontSize='2xl' fontWeight='bold'>Ingredients</Text>
+    {Array.from({ length: numItems }, (_, index) => (
+    <Flex justifyContent="space-between" alignItems="center" mt={4} key={index}>
+      <Box>
+        <GetName index={index} />
+      </Box>
+      <Box>
+        <GetAmount index={index} />
+      </Box>
+      <Box>
+        <GetNutrition index={index} />
+      </Box>
+      </Flex>
+    ))}
+    <ButtonGroup justifyContent="end" size="sm" w="full" spacing={2} mt={2} colorScheme='brand'>
+      <Button onClick={() => setNumItems(numItems + 1)}>Add Ingredient</Button>
+      <IconButton icon={<CloseIcon boxSize={3} />} onClick={() => setNumItems(numItems - 1)} />
+    </ButtonGroup>
+    </>
   )
 }
 
 // Function to get the steps in the recipe
-function GetSteps(props) {
-  const [actions, setActions] = useState([]);
-  const [triggers, setTriggers] = useState([]);
-  const [myMeta, setMyMeta] = useState([]);
+function GetSteps() {
+  const [numSteps, setNumSteps] = useState(1);
+  const { register, errors } = useFormContext();
   
   // Function to get the action of each step in the recipe
   function GetAction(props) {
     return (
-      <div>
-        <h1>Input Action</h1>
-      </div>
+      <Editable
+        defaultValue="...action"
+        isPreviewFocusable={true}
+        selectAllOnFocus={false}>
+        <Tooltip label="What're the actions for this step of the recipe?">
+          <EditablePreview
+            py={2}
+            px={4}
+            _hover={{
+              background: useColorModeValue("brand.400", "brand.600")
+            }}
+          />
+        </Tooltip>
+        <Input py={2} px={4} as={EditableTextarea}
+          {...register(`steps[${props.index}].action`, {required: 'Add an action',
+          maxLength: {value: 280, message: 'Action must be less than 280 characters'}})} />
+        <FormErrorMessage>
+          {errors.name && errors.name.message}
+        </FormErrorMessage>
+        <EditableControls />
+      </Editable>
     )
   }
 
 // Function to get the trigger for the next step in the recipe
   function GetTrigger(props) {
     return (
-      <div>
-        <h1>Input Trigger</h1>
-      </div>
+      <Editable
+        defaultValue="...trigger"
+        isPreviewFocusable={true}
+        selectAllOnFocus={false}>
+        <Tooltip label="What triggers the next step of the recipe?">
+          <EditablePreview
+            py={2}
+            px={4}
+            _hover={{
+              background: useColorModeValue("brand.400", "brand.600")
+            }}
+          />
+        </Tooltip>
+        <Input py={2} px={4} as={EditableTextarea}
+          {...register(`steps[${props.index}].trigger`, {required: 'Add an trigger',
+          maxLength: {value: 280, message: 'Trigger must be less than 280 characters'}})} />
+        <FormErrorMessage>
+          {errors.name && errors.name.message}
+        </FormErrorMessage>
+        <EditableControls />
+      </Editable>
     )
   }
 
   // Function to get the meta of the step
   function GetMyMeta(props) {
     return (
-      <div>
-        <h1>Input Meta</h1>
-      </div>
+      <Editable
+        placeholder="...your meta"
+        isPreviewFocusable={true}
+        selectAllOnFocus={false}>
+        <Tooltip label="Do you use any special tricks in this step of the recipe? Not required">
+          <EditablePreview
+            py={2}
+            px={4}
+            _hover={{
+              background: useColorModeValue("brand.400", "brand.600")
+            }}
+          />
+        </Tooltip>
+        <Input py={2} px={4} as={EditableTextarea}
+          {...register(`steps[${props.index}].action`, {
+          maxLength: {value: 280, message: 'Meta must be less than 280 characters'}})} />
+        <FormErrorMessage>
+          {errors.name && errors.name.message}
+        </FormErrorMessage>
+        <EditableControls />
+      </Editable>
     )
   }
 
 return (
-  <div>
-    <h1>Input Steps</h1>
-  </div>
+  <>
+    <Text fontSize={'2xl'} fontWeight='bold'>Steps</Text>
+    {Array.from({ length: numSteps }, (_, index) => (
+      <Flex justifyContent="space-between" alignItems="center" mt={4} key={index}>
+        <Box>
+          <GetAction index={index} />
+        </Box>
+        <Box>
+          <GetTrigger index={index} />
+        </Box>
+        <Box>
+          <GetMyMeta index={index} />
+        </Box>
+      </Flex>
+    ))}
+    <ButtonGroup justifyContent="end" size="sm" w="full" spacing={2} mt={2} colorScheme='brand'>
+      <Button onClick={() => setNumSteps(numSteps + 1)}>Add Step</Button>
+      <IconButton icon={<CloseIcon boxSize={3} />} onClick={() => setNumSteps(numSteps - 1)} />
+    </ButtonGroup>
+  </>
 )
 }
 
