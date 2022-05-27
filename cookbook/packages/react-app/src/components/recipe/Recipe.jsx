@@ -1,11 +1,10 @@
 
 import React, { useRef, useState } from 'react'
-import { Image, RoundedBox, Text } from '@react-three/drei'
+import { RoundedBox, Text } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
-import imageUrl from '../../assets/Stir Fry/7.jpg'
 import { useThree } from '@react-three/fiber'
 
-const Feature = ({args, recipe, setShowRecipe, setRecipe, position, scrollToRecipe, url, ...props }) => {
+const Recipe = ({ args, recipe, setShowRecipe, setRecipe, position, scrollToRecipe }) => {
   // This reference will give us direct access to the mesh
   const mesh = useRef()
   // Set up state for the hovered and active state
@@ -18,6 +17,10 @@ const Feature = ({args, recipe, setShowRecipe, setRecipe, position, scrollToReci
     mesh.current.material.color.set('#AD9870')
   })
   const { width } = useThree((state) => state.viewport)
+
+  const numIngredients = recipe.ingredients.length
+  const numSteps = recipe.steps.length
+  const numMeta = recipe.myMeta.length
 
   // Handle click event
   const handleClick = () => {
@@ -37,16 +40,21 @@ const Feature = ({args, recipe, setShowRecipe, setRecipe, position, scrollToReci
       scale={hovered ? 1.25 : 1}
       onClick={e => handleClick(e)}
       onPointerOver={(event) => setHover(true)}
-      onPointerOut={(event) => setHover(false)}>
-      <Text position={[position[0], position[1] - 0.5, position[2] + 0.5]}
-        lineHeight={0.4}
-        fontSize={width / 30}
-        material-toneMapped={false}
-        anchorY="middle" ref={mesh}>{recipe.name}</Text>
-      {/* <Image url={imageUrl} {...props} /> */}
-    </RoundedBox>
+      onPointerOut={(event) => setHover(false)} />
+    <Text position={[position[0], position[1] + 6, position[2] + 1]}
+      lineHeight={0.4} scale={hovered ? 1.25 : 1}
+      fontSize={width / 20}>{recipe.name}</Text>
+    <Text position={[position[0], position[1] + 1, position[2] + 1]}
+      lineHeight={0.4} scale={hovered ? 1.25 : 1}
+      fontSize={width / 30}>{numIngredients} ingredients</Text>
+    <Text position={[position[0], position[1] - 3, position[2] + 1]}
+      lineHeight={0.4} scale={hovered ? 1.25 : 1}
+      fontSize={width / 30}>{numSteps} steps</Text>
+    <Text position={[position[0], position[1] - 7, position[2] + 1]}
+      lineHeight={0.4} scale={hovered ? 1.25 : 1}
+      fontSize={width / 30}>{numMeta} meta skills</Text>
     </>
   )
 }
 
-export default Feature;
+export default Recipe;

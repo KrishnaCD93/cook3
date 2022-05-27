@@ -15,7 +15,7 @@ const WhatCookbook = (props) => {
               <Box>
                 <Text color={'brand.800'} fontSize='md' align={'center'}>
                   Cookbook is a social network for home chefs who want to share recipes 
-                  with their community. We are building a platform where you can create recipes
+                  and find their meta. We are building a platform where you can create recipes
                   and compose new meal ideas together with your community. This app is for you if 
                   you like to cook variations of your favorite recipes and talk about your experiences.
                 </Text>
@@ -50,7 +50,7 @@ const WhatCookbook = (props) => {
               <Text fontSize='4xl' color='brand.400'>Discover</Text>
               <Divider />
               <Text color='brand.800' fontSize='md' align={'center'}>
-                Discover new recipes and meta skills. 
+                Discover new recipes and different cooking styles. 
                 Compose new meals and add your unique taste to the marketplace of ideas.
               </Text>
             </VStack>
@@ -62,7 +62,7 @@ const WhatCookbook = (props) => {
               <Divider />
               <Text color='brand.800' fontSize='md' align={'center'}>
                 Trade your ideas and meta skills learned from experiences in the kitchen. 
-                Rank up your skills and create new recipes.
+                Rank up your skills and create new recipes with your meta.
               </Text>
             </VStack>
           </Box>

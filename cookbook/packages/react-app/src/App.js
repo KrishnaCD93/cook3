@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 
-import { Button } from "./components";
+import { Button, Header } from "./components";
 import useWeb3Modal from "./hooks/useWeb3Modal";
 
-import { Navbar, Body } from "./components";
+import { Navbar } from "./components";
+import { Footer } from "./containers";
 
 function WalletButton({ provider, loadWeb3Modal, logoutOfWeb3Modal }) {
   const [account, setAccount] = useState("");
@@ -64,9 +65,12 @@ function App() {
       <Navbar>
         <WalletButton provider={provider} loadWeb3Modal={loadWeb3Modal} logoutOfWeb3Modal={logoutOfWeb3Modal} />
       </Navbar>
-      <Body>
+      <div>
         <Outlet />
-      </Body>
+      </div>
+      <Header>
+        <Footer />
+      </Header>
     </div>
   );
 }

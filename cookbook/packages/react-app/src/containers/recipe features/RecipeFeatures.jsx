@@ -1,6 +1,6 @@
-import { Text } from '@react-three/drei';
 import React from 'react';
-import { Feature } from '../../components';
+import { Scroll, ScrollControls, Text } from '@react-three/drei';
+import { Recipe } from '../../components';
 import { useThree } from '@react-three/fiber';
 
 const recipe_1 = {name: 'Eggplant Pasta', desc: 'Indian Style Eggplant Pasta',
@@ -11,7 +11,7 @@ ingredients: [{'Eggplant, long': 2}, {'Pasta': 'As needed'}, {'Onion': 1},
   {'Cook pasta in boiling water for about 10 minutes.': 'Cook until al dente in texture.'},{'Heat up the sauce in a pan and add the pasta, roasted eggplant, and onion.': 'Stir until the sauce coats the eggplants and pasta.'},
   {'Garnish with pepper, basil, and cheese.': 'Serve meal.'}],
   myMeta: ['Toss with oil, salt, chilli powder, and garlic powder.', 'Add a pinch of salt to the boiling water.', 
-  'Add a bit of turmeric, garam masala, and red chilli powder.', "Coriander is a good replacement herb if using garam masala, don't add cheese.", 'Serve with garlic bread or toast.']};
+  "Add a bit of turmeric, garam masala, and red chilli powder., Coriander is a good replacement herb if using garam masala, don't add cheese.", 'Serve with garlic bread or toast.']};
 const recipe_2 = {name:'Omelette', desc: 'Omelette, Indian Style',
 ingredients: [{'Eggs, large': 2}, {'Ghee': '1 tblsp'}, {'Grated Cheese': '2 tblsp'},
   {'Tomatoes': 1}, {'Herbs': 'Assorted'}, {'Salt': 'To taste'}, {'Pepper': 'To taste'}],
@@ -27,45 +27,50 @@ const recipe_3 = {name: 'Vegetable Stir Fry', desc: 'Vegetable Stir Fry, Indian 
   {'Garnish with herbs and pepper.': 'Serve meal with rice.'}], myMeta: ['I use broccoli, cauliflower, peas, green beans, and baby corn and thaw the frozen vegetables with water.', 
   'Add red chilli powder, turmeric, and salt.', 'Stir and reduce the water.', 'Pour a bit of sesame oil on the dish.']};
 
-const Features = (props) => {
-  let url_1 = FeatureImage({ name: recipe_1.name, desc: recipe_1.desc, metaSkillCount: recipe_1.myMeta.length });
-  let url_2 = FeatureImage({ name: recipe_2.name, desc: recipe_2.desc, metaSkillCount: recipe_2.myMeta.length });
-  let url_3 = FeatureImage({ name: recipe_3.name, desc: recipe_3.desc, metaSkillCount: recipe_3.myMeta.length });
-
-
-  const { width } = useThree((state) => state.viewport)
+const RecipeFeatures = (props) => {
+  const { width: w, height: h } = useThree((state) => state.viewport)
   return(
     <>
     <color attach="background" args={['#282c34']} />
-    <ambientLight />
     <Text position={[0, 15, -5]}
       lineHeight={0.8}
-      font="/Ki-Medium.ttf"
-      fontSize={width / 12}
+      fontSize={w / 12}
       material-toneMapped={false}
       anchorX="center"
       anchorY="middle">View Krishna's Cookbook!</Text>
-    <Feature position={[-30, -5, 0]} args={[20, 20]} recipe={recipe_1} url={url_1} {...props} />
-    <Feature position={[0, -5, 0]} args={[20, 20]} recipe={recipe_2} url={url_2} {...props} />
-    <Feature position={[30, -5, 0]} args={[20, 20]} recipe={recipe_3} url={url_3} {...props} />
+    <ScrollControls damping={1} pages={2}>
+      <Scroll>
+        <Recipe position={[0, 0, 0]} args={[w / 2, w / 4]} recipe={recipe_1} {...props} />
+        <Recipe position={[0, -h * 0.33, 0]} args={[w / 2, w / 4]} recipe={recipe_2} {...props} />
+        <Recipe position={[0, -h * .67, 0]} args={[w / 2, w / 4]} recipe={recipe_3} {...props} />
+      </Scroll>
+    </ScrollControls>
     </>
   )
 }
 
 // Draw an svg with the recipe name as the text
-function FeatureImage({ name, desc, metaSkillCount }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350">
-      <style>
-        {`.base { fill: white; font-family: serif; font-size: 14px; }
-        .skill { fill: white; font-family: serif; font-size: 10px; }`}
-      </style>
-      <rect width="100%" height="100%" fill="black" />
-      <text x="50%" y="50%" class="base" dominant-baseline="middle" text-anchor="middle">{name}</text>
-      <text x="50%" y="60%" class="base" dominant-baseline="middle" text-anchor="middle">{desc}</text>
-      <text x="50%" y="75%" class="skill" dominant-baseline="middle" text-anchor="middle">Meta Skills: {metaSkillCount}</text>
-    </svg>
-  )
-}
+// function RecipeImage(props) {
+//   let numIngredients = props.recipe.ingredients.length;
+//   let numSteps = props.recipe.steps.length;
+//   let numMeta = props.recipe.myMeta.length;
 
-export default Features;
+//   return (
+//     <Text position={props.position}>
+//     <svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350">
+//       <style>
+//         {`.base { fill: white; font-family: serif; font-size: 14px; }
+//         .skill { fill: white; font-family: serif; font-size: 10px; }`}
+//       </style>
+//       <rect width="100%" height="100%" fill="black" />
+//       <text x="50%" y="50%" className="base" dominantBaseline="middle" textAnchor="middle">{props.name}</text>
+//       <text x="50%" y="60%" className="base" dominantBaseline="middle" textAnchor="middle">{props.desc}</text>
+//       <text x="50%" y="70%" className="base" dominantBaseline="middle" textAnchor="middle">{numIngredients} Ingredients</text>
+//       <text x="50%" y="75%" className="base" dominantBaseline="middle" textAnchor="middle">{numSteps} Steps</text>
+//       <text x="50%" y="80%" className="skill" dominantBaseline="middle" textAnchor="middle">{numMeta} Meta Skills</text>
+//     </svg>
+//     </Text>
+//   )
+// }
+
+export default RecipeFeatures;

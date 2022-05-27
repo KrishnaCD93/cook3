@@ -8,7 +8,9 @@ import { extendTheme } from "@chakra-ui/react"
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import App from "./App";
-import { Blogposts, Blogpost, CreateRecipe, Home } from "./pages";
+import { Blogposts, Blogpost, CreateRecipe, Home, Recipes, Profile } from "./pages";
+import { RecipeFeatures } from "./containers";
+import { Recipe } from "./components";
 
 // You should replace this url with your own and put it into a .env file
 // See all subgraphs: https://thegraph.com/explorer/
@@ -42,6 +44,11 @@ createRoot(document.getElementById('root')).render(
               <Route path=":digest" element={<Blogpost />} />
             </Route>
             <Route path="create" element={<CreateRecipe />} />
+            <Route path="recipes" element={<Recipes />}>
+              <Route index element={<RecipeFeatures />} />
+              <Route path=":recipeId" element={<Recipe />} />
+            </Route>
+            <Route path="profile" element={<Profile />} />
             <Route
               path="*"
               element={

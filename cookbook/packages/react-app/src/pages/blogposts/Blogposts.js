@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import Arweave from 'arweave';
 import { Box, Container, Flex, SimpleGrid, Heading, Link, Text } from '@chakra-ui/react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { Blog } from '../../components';
+import { Blog, Body } from '../../components';
 
 // initialize a gateway connection
 const arweave = Arweave.init({
@@ -35,18 +35,20 @@ const Blogposts = () => {
   }, [transactionId])
 
   return (
-    <>{posts && <Container centerContent>
-      <Heading>Blog Posts</Heading>
-      <Text>Read about the product and the vision</Text>
-      <Flex>
-        <LinkBlogs posts={posts} />
-      </Flex>
-      <SimpleGrid gap='20px'>
-      </SimpleGrid>
-      <Flex m='20px' p='20px'>
-        <Outlet />
-      </Flex>
-    </Container>}</>
+    <Body>
+      {posts && <Container centerContent>
+        <Heading>Blog Posts</Heading>
+        <Text>Read about the product and the vision</Text>
+        <Flex>
+          <LinkBlogs posts={posts} />
+        </Flex>
+        <SimpleGrid gap='20px'>
+        </SimpleGrid>
+        <Flex m='20px' p='20px'>
+          <Outlet />
+        </Flex>
+      </Container>}
+    </Body>
   )
 }
 

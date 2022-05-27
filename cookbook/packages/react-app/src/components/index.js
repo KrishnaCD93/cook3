@@ -57,6 +57,6 @@ export const Button = styled.button`
 export { default as Article } from "./article/Article";
 export { default as Blog } from "./blog/Blog";
 export { default as CTA } from "./cta/CTA";
-export { default as Feature } from "./feature/Feature";
+export { default as Recipe } from "./recipe/Recipe";
 export { default as Navbar } from "./navbar/Navbar";
 export { default as GoToTop } from "./GoToTop";

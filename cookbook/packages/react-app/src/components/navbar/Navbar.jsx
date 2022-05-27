@@ -19,7 +19,7 @@ const Navbar = ({ isVisible, children }) => {
             return {
               color: isActive ? "#c9b68e" : "",
             };
-          }} to="/blog">Blog</Link>
+          }} to="/recipes">Recipes</Link>
       </Button>
       <Button>
         <Link as={NavLink} style={({ isActive }) => {
@@ -27,6 +27,13 @@ const Navbar = ({ isVisible, children }) => {
               color: isActive ? "#c9b68e" : "",
             };
           }} to="/create">Create</Link>
+      </Button>
+      <Button>
+        <Link as={NavLink} style={({ isActive }) => {
+            return {
+              color: isActive ? "#c9b68e" : "",
+            };
+          }} to="/blog">Blog</Link>
       </Button>
     </ButtonGroup>
     <Spacer />
