@@ -32,17 +32,17 @@ const RecipeFeatures = (props) => {
   return(
     <>
     <color attach="background" args={['#282c34']} />
-    <Text position={[0, 15, -5]}
+    <Text position={[0, h * 0.33, -5]}
       lineHeight={0.8}
       fontSize={w / 12}
       material-toneMapped={false}
       anchorX="center"
       anchorY="middle">View Krishna's Cookbook!</Text>
-    <ScrollControls damping={1} pages={2}>
+    <ScrollControls damping={3} pages={2}>
       <Scroll>
-        <Recipe position={[0, 0, 0]} args={[w / 2, w / 4]} recipe={recipe_1} {...props} />
-        <Recipe position={[0, -h * 0.33, 0]} args={[w / 2, w / 4]} recipe={recipe_2} {...props} />
-        <Recipe position={[0, -h * .67, 0]} args={[w / 2, w / 4]} recipe={recipe_3} {...props} />
+        <Recipe position={[0, 0, 0]} args={[w / 3, w / 8]} recipe={recipe_1} {...props} />
+        <Recipe position={[0, -h * 0.33, 0]} args={[w / 3, w / 8]} recipe={recipe_2} {...props} />
+        <Recipe position={[0, -h * .67, 0]} args={[w / 3, w / 8]} recipe={recipe_3} {...props} />
       </Scroll>
     </ScrollControls>
     </>

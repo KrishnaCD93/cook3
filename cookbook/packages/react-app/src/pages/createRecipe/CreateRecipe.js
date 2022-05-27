@@ -45,7 +45,7 @@ const CreateRecipe = () => {
   return (
     <Body>
     <CSSReset />
-    <Container w='100%' h='100vh' centerContent>
+    <Container w='100%' centerContent>
       <Heading>Create Recipe</Heading>
       <FormProvider {...{ handleSubmit, register, errors, isSubmitting }}>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -278,8 +278,8 @@ const GetSteps = () => {
   }
 
 return (
-  <>
-  <Flex mt={4} overflowWrap="wrap">
+  <Container p={2} m={2} centerContent>
+  <Flex p={2} m={2} overflowWrap="wrap">
   {Array.from({ length: numSteps }, (_, index) => (
     <VStack justifyContent="space-between" alignItems="center" mt={4} key={index}>
       <Text fontSize={'xl'} fontWeight='bold'>Step {index + 1}</Text>
@@ -299,7 +299,7 @@ return (
     <Button onClick={() => setNumSteps(numSteps + 1)}>＋ Step</Button>
     <IconButton icon={<CloseIcon boxSize={3} />} onClick={() => setNumSteps(numSteps - 1)} />
   </ButtonGroup>
-  </>
+  </Container>
 )
 }
 

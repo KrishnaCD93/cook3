@@ -1,6 +1,5 @@
 import React, { Suspense, useRef, useState } from 'react';
 import { Canvas } from "@react-three/fiber";
-import { Container } from '@chakra-ui/react';
 import { useSpring, a } from 'react-spring';
 import { Possibility, RecipeFeatures } from "../../containers";
 
@@ -19,13 +18,13 @@ const Recipes = () => {
   }
   return ( 
   <>
-  <Container w='100%' h='calc(100vh - 70px)' p={2}>
+  <div style={{height: 'calc(100vh - 70px)'}}>
     <Suspense fallback={null}>
-      <Canvas dpr={[1, 2]} camera={{ position: [0, 0, 35], fov: 110 }}>
+      <Canvas orthographic camera={{ zoom: 80 }} gl={{ alpha: false, antialias: false, stencil: false }} dpr={[1, 1.5]}>
         <RecipeFeatures scrollToRecipe={scrollToRecipe} setRecipe={setRecipe} setShowRecipe={setShowRecipe} />
       </Canvas>
     </Suspense>
-  </Container>
+  </div>
   {showRecipe && <a.div style={dropDown} ref={recipeRef}>
     <Possibility recipe={recipe} />
   </a.div>}
