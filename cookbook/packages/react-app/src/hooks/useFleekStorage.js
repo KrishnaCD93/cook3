@@ -22,14 +22,11 @@ const useFleekStorage = () => {
   async function fleekStorageUpload(recipe){
     let date = new Date()
     let timestamp = date.getTime()
-    let userID = recipe.userID
-    let cookbookID = recipe.cookbookID
-    let recipeName = recipe.recipeName
     let data = JSON.stringify(recipe)
     let input = {
       apiKey: fleekStorageKey,
       apiSecret: fleekStorageSecret,
-      key: `${userID}/${cookbookID}/${recipeName}-${timestamp}`,
+      key: `${recipe.userID}/${recipe.cookbookID}/${recipe.recipeName}/${timestamp}`,
       ContentType: 'application/json',
       data: data,
     }

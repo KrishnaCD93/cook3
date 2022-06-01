@@ -3,7 +3,7 @@ import React from 'react';
 import { NavLink } from "react-router-dom";
 import { Header } from "../index"
 
-const Navbar = ({ isVisible, children }) => {
+const Navbar = ({ children }) => {
   return(
     <Header>
     <ButtonGroup variant={'link'}>
@@ -44,7 +44,7 @@ const Navbar = ({ isVisible, children }) => {
             };
           }} to="/profile">Profile</Link>
     </Button>
-    {isVisible && {children}}
+    {children}
     </Header>
   )
 }

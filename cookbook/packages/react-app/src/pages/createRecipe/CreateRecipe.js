@@ -6,9 +6,13 @@ import React, { useState } from 'react';
 import { Body } from "../../components";
 import useFleekStorage from "../../hooks/useFleekStorage";
 import { generateUUID } from "three/src/math/MathUtils";
+import useWeb3Modal from "../../hooks/useWeb3Modal";
 
 const CreateRecipe = () => {
   const [, fleekStorageUpload] = useFleekStorage();
+  const [provider, ,] = useWeb3Modal();
+  const [account, setAccount] = useState([]);
+
   const recipe = {
     name: '',
     description: '',
@@ -20,33 +24,41 @@ const CreateRecipe = () => {
   const { handleSubmit, register, formState: { errors, isSubmitting } } = useForm({defaultValues: recipe})
 
   const onSubmit = async (data) => {
-    console.log(data);
-    let userId = generateUUID();
-    let cookbookId = generateUUID();
-    let name = data.name
-    let description = data.description
-    let ingredients = []
-    let steps = []
-    data.ingredients.forEach((ingredient) => {
-        ingredients.push({
-          name: ingredient.name,
-          quantity: ingredient.quantity,
-          nutritionInfo: ingredient.nutritionInfo
-        })
-      })
-    data.steps.forEach((step) => {
-        steps.push({
-          action: step.action,
-          trigger: step.trigger,
-          myMeta: step.myMeta
-        })
-    })
-    let recipe = { userId, cookbookId, name, description, ingredients, steps }
-    console.log(recipe)
-    alert('Recipe created!', recipe)
     try {
-      let upload = await fleekStorageUpload(recipe);
-      console.log(upload);
+      if (!provider) {
+        console.log('Please connect to Metamask')
+        alert('Please connect to Metamask')
+        return;
+      } else {
+        const accounts = await provider.listAccounts();
+        setAccount(accounts[0]);
+        console.log(data);
+        let userId = account;
+        let cookbookId = generateUUID();
+        let name = data.name
+        let description = data.description
+        let ingredients = []
+        let steps = []
+        data.ingredients.forEach((ingredient) => {
+            ingredients.push({
+              name: ingredient.name,
+              quantity: ingredient.quantity,
+              nutritionInfo: ingredient.nutritionInfo
+            })
+          })
+        data.steps.forEach((step) => {
+            steps.push({
+              action: step.action,
+              trigger: step.trigger,
+              myMeta: step.myMeta
+            })
+        })
+        let recipe = { userId, cookbookId, name, description, ingredients, steps }
+        console.log(recipe)
+        let upload = await fleekStorageUpload(recipe);
+        console.log(upload);
+        alert('Recipe created!', recipe)
+      }
     } catch (error) {
       console.log('error: ', error)
     }
