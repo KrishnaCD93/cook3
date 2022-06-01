@@ -4,34 +4,52 @@ import { useForm, FormProvider, useFormContext } from 'react-hook-form'
 import { FormErrorMessage, FormLabel, FormControl, Button } from '@chakra-ui/react'
 import React, { useState } from 'react';
 import { Body } from "../../components";
+import useFleekStorage from "../../hooks/useFleekStorage";
+import { generateUUID } from "three/src/math/MathUtils";
 
 const CreateRecipe = () => {
-  const recipe = {name: '', description: '', 
-    ingredients: [{name: '', quantity: '', nutritionInfo: ''}],
-    steps: [{action: '', trigger: '', myMeta: ''}]
-  };
-
+  const [, fleekStorageUpload] = useFleekStorage();
+  const recipe = {
+    name: '',
+    description: '',
+    ingredients: [],
+    steps: [],
+    userId: '',
+    cookbookId: '',
+  }
   const { handleSubmit, register, formState: { errors, isSubmitting } } = useForm({defaultValues: recipe})
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     console.log(data);
-    recipe.name = data.name
-    recipe.description = data.description
+    let userId = generateUUID();
+    let cookbookId = generateUUID();
+    let name = data.name
+    let description = data.description
+    let ingredients = []
+    let steps = []
     data.ingredients.forEach((ingredient) => {
-        recipe.ingredients.push({
+        ingredients.push({
           name: ingredient.name,
           quantity: ingredient.quantity,
           nutritionInfo: ingredient.nutritionInfo
         })
       })
     data.steps.forEach((step) => {
-        recipe.steps.push({
+        steps.push({
           action: step.action,
           trigger: step.trigger,
           myMeta: step.myMeta
         })
     })
+    let recipe = { userId, cookbookId, name, description, ingredients, steps }
     console.log(recipe)
+    alert('Recipe created!', recipe)
+    try {
+      let upload = await fleekStorageUpload(recipe);
+      console.log(upload);
+    } catch (error) {
+      console.log('error: ', error)
+    }
   }
 
   if (isSubmitting) {
