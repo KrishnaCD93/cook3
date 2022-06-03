@@ -40,7 +40,8 @@ const CreateRecipe = () => {
             ingredients.push({
               name: ingredient.name,
               quantity: ingredient.quantity,
-              ingredientMeta: ingredient.ingredientMeta
+              ingredientMeta: ingredient.ingredientMeta,
+              image: ''
             })
           } else if (ingredient.image) {
               ingredients.push({
@@ -56,7 +57,8 @@ const CreateRecipe = () => {
             steps.push({
               action: step.action,
               trigger: step.trigger,
-              myMeta: step.myMeta
+              myMeta: step.myMeta,
+              image: ''
             })
           } else if (step.image) {
             steps.push({
