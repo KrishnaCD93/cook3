@@ -5,14 +5,12 @@ import { FormErrorMessage, FormLabel, FormControl, Button } from '@chakra-ui/rea
 import React, { useState } from 'react';
 import { Body } from "../../components";
 import useFleekStorage from "../../hooks/useFleekStorage";
-import { generateUUID } from "three/src/math/MathUtils";
-import useWeb3Modal from "../../hooks/useWeb3Modal";
+import { useAccount } from 'wagmi'
 
 const CreateRecipe = () => {
-  const [, fleekStorageUpload] = useFleekStorage();
-  const [provider, ,] = useWeb3Modal();
-  const [account, setAccount] = useState([]);
-
+  const [, fleekStorageUploadRecipe,] = useFleekStorage();
+  const { data: account } = useAccount();
+  const [uploading, setUploading] = useState(false);
   const recipe = {
     name: '',
     description: '',
@@ -23,41 +21,58 @@ const CreateRecipe = () => {
   }
   const { handleSubmit, register, formState: { errors, isSubmitting } } = useForm({defaultValues: recipe})
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (formData) => {
     try {
-      if (!provider) {
-        console.log('Please connect to Metamask')
-        alert('Please connect to Metamask')
+      if (!account) {
+        alert('Please connect to Ethereum')
         return;
       } else {
-        const accounts = await provider.listAccounts();
-        setAccount(accounts[0]);
-        console.log(data);
-        let userId = account;
-        let cookbookId = generateUUID();
-        let name = data.name
-        let description = data.description
+        setUploading(true);
+        console.log(formData);
+        let userId = account.address;
+        let cookbookId = 0;
+        let name = formData.name
+        let description = formData.description
         let ingredients = []
         let steps = []
-        data.ingredients.forEach((ingredient) => {
+        formData.ingredients.forEach((ingredient) => {
+          if (!ingredient.image) {
             ingredients.push({
               name: ingredient.name,
               quantity: ingredient.quantity,
-              nutritionInfo: ingredient.nutritionInfo
+              ingredientMeta: ingredient.ingredientMeta
             })
-          })
-        data.steps.forEach((step) => {
+          } else if (ingredient.image) {
+              ingredients.push({
+                name: ingredient.name,
+                quantity: ingredient.quantity,
+                ingredientMeta: ingredient.ingredientMeta,
+                image: URL.createObjectURL(ingredient.image[0])
+            })
+          }
+        })
+        formData.steps.forEach((step) => {
+          if (!step.image) {
             steps.push({
               action: step.action,
               trigger: step.trigger,
               myMeta: step.myMeta
             })
+          } else if (step.image) {
+            steps.push({
+              action: step.action,
+              trigger: step.trigger,
+              myMeta: step.myMeta,
+              image: URL.createObjectURL(step.image[0])
+            })
+          }
         })
         let recipe = { userId, cookbookId, name, description, ingredients, steps }
-        console.log(recipe)
-        let upload = await fleekStorageUpload(recipe);
-        console.log(upload);
-        alert('Recipe created!', recipe)
+        console.log('recipe: ', recipe)
+        let uploadRecipe = await fleekStorageUploadRecipe(recipe);
+        console.log('uploaded data: ', uploadRecipe);
+        setUploading(false);
+        alert('Recipe created!')
       }
     } catch (error) {
       console.log('error: ', error)
@@ -79,7 +94,7 @@ const CreateRecipe = () => {
       <Heading>Create Recipe</Heading>
       <FormProvider {...{ handleSubmit, register, errors, isSubmitting }}>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <FormControl isInvalid={errors} as='fieldset'>
+          <FormControl isInvalid={errors} as='fieldset' isDisabled={uploading}>
             <FormLabel htmlFor="name">
               <GetRecipeName />
             </FormLabel>
@@ -142,7 +157,7 @@ function GetRecipeName() {
           }}
         />
       </Tooltip>
-      <Input py={2} px={2} as={EditableInput} 
+      <Input py={2} px={2} as={EditableInput}
       {...register('name', {required: 'Give your recipe a name'})} />
       <FormErrorMessage>
         {errors.name && errors.name.message}
@@ -192,7 +207,7 @@ const GetIngredients = () => {
     return (
       <>
       <Tooltip label="Add some ingredients">
-        <Input py={2} px={2} placeholder="...name"
+        <Input py={2} px={2} placeholder="...name" variant={'flushed'} isInvalid={false}
         {...register(`ingredients[${index}].name`, {required: 'Give the ingredient a name'})} />
       </Tooltip>
       {errors.ingredients && errors.ingredients[index] && errors.ingredients[index].name && (
@@ -208,7 +223,7 @@ const GetIngredients = () => {
     return (
       <>
       <Tooltip label="Add the quantity of the ingredient">
-        <Input py={2} px={2} placeholder="...amount"
+        <Input py={2} px={2} placeholder="...amount" variant={'flushed'} isInvalid={false}
         {...register(`ingredients[${index}].quantity`, {required: 'Give the ingredient a quantity'})} />
       </Tooltip>
       {errors.ingredients && errors.ingredients[index] && errors.ingredients[index].quantity && (
@@ -220,14 +235,24 @@ const GetIngredients = () => {
       )
   }
 
-  function GetNutrition({ index }) {
+  function GetIngredientMeta({ index }) {
     return (
-      <Tooltip label="Add any nutritional info, not required">
-        <Textarea py={2} px={2} placeholder="...nutrition"
-        {...register(`ingredients[${index}].nutritionInfo`)} />
+      <Tooltip label="Add any notes such as preparation or storage instructions, not required">
+        <Textarea py={2} px={2} placeholder="...ingredient meta" variant={'flushed'} isInvalid={false}
+        {...register(`ingredients[${index}].ingredientMeta`)} />
       </Tooltip>
     )
   }
+
+  function GetImage({ index }) {
+    return (
+      <Tooltip label="Add an image of the ingredient">
+        <Input py={2} px={2} placeholder="...image" type='file' variant={'flushed'} isInvalid={false}
+        {...register(`ingredients[${index}].image`)} />
+      </Tooltip>
+    )
+  }
+
   return (
     <>
     {Array.from({ length: numIngredients }, (_, index) => (
@@ -239,8 +264,11 @@ const GetIngredients = () => {
         <GetAmount index={index} />
       </Box>
       <Box>
-        <GetNutrition index={index} />
-      </Box>    
+        <GetIngredientMeta index={index} />
+      </Box>
+      <Box>
+        <GetImage index={index} />
+      </Box>
     </Flex>
     ))}
     <ButtonGroup colorScheme={'brand'} justifyContent="end" size="sm" w="full" spacing={2} mt={2}>
@@ -257,53 +285,63 @@ const GetSteps = () => {
   const [numSteps, setNumSteps] = useState(1);
 
   // Function to get the action of each step in the recipe
-  function GetAction(props) {
+  function GetAction({ index }) {
     return (
       <>
       <Tooltip label="What're the actions for this step of the recipe?">
-        <Textarea py={2} px={2} placeholder="...action"
-          {...register(`steps[${props.index}].action`, {required: 'Add an action',
+        <Textarea py={2} px={2} placeholder="...action" variant={'flushed'} isInvalid={false}
+          {...register(`steps[${index}].action`, {required: 'Add an action',
           maxLength: {value: 280, message: 'Action must be less than 280 characters'}})} />
       </Tooltip>
-      {errors.steps && errors.steps[props.index] && errors.steps[props.index].action && (
+      {errors.steps && errors.steps[index] && errors.steps[index].action && (
       <FormErrorMessage>
-        {errors.steps[props.index].action && errors.steps[props.index].action.message}
+        {errors.steps[index].action && errors.steps[index].action.message}
       </FormErrorMessage>)}
       </>
     )
   }
 
 // Function to get the trigger for the next step in the recipe
-  function GetTrigger(props) {
+  function GetTrigger({ index }) {
     return (
       <>
       <Tooltip label="What triggers the next step of the recipe?">
-        <Textarea py={2} px={2} placeholder="...trigger"
-          {...register(`steps[${props.index}].trigger`, {required: 'Add an trigger',
+        <Textarea py={2} px={2} placeholder="...trigger" variant={'flushed'} isInvalid={false}
+          {...register(`steps[${index}].trigger`, {required: 'Add an trigger',
           maxLength: {value: 280, message: 'Trigger must be less than 280 characters'}})} />
       </Tooltip>
-      {errors.steps && errors.steps[props.index] && errors.steps[props.index].trigger && (
+      {errors.steps && errors.steps[index] && errors.steps[index].trigger && (
       <FormErrorMessage>
-        {errors.steps[props.index].trigger && errors.steps[props.index].trigger.message}
+        {errors.steps[index].trigger && errors.steps[index].trigger.message}
       </FormErrorMessage>)}
       </>
     )
   }
 
   // Function to get the meta of the step
-  function GetMyMeta(props) {
+  function GetMyMeta({ index }) {
     return (
       <>
       <Tooltip label="Do you use any special tricks in this step of the recipe? Not required">
-        <Textarea py={2} px={2} placeholder="...meta"
-          {...register(`steps[${props.index}].myMeta`, {
+        <Textarea py={2} px={2} placeholder="...meta" variant={'flushed'} isInvalid={false}
+          {...register(`steps[${index}].myMeta`, {
           maxLength: {value: 280, message: 'Meta must be less than 280 characters'}})} />
       </Tooltip>
-      {errors.steps && errors.steps[props.index] && errors.steps[props.index].myMeta && (
+      {errors.steps && errors.steps[index] && errors.steps[index].myMeta && (
       <FormErrorMessage>
-        {errors.steps[props.index].myMeta && errors.steps[props.index].myMeta.message}
+        {errors.steps[index].myMeta && errors.steps[index].myMeta.message}
       </FormErrorMessage>)}
       </>
+    )
+  }
+
+  // Function to get the image of the step
+  function GetImage({ index }) {
+    return (
+      <Tooltip label="Add an image of the step">
+        <Input py={2} px={2} placeholder="...image" type='file' variant={'flushed'} isInvalid={false}
+        {...register(`steps[${index}].image`)} />
+      </Tooltip>
     )
   }
 
@@ -321,6 +359,9 @@ return (
       </Box>
       <Box>
         <GetMyMeta index={index} />
+      </Box>
+      <Box>
+        <GetImage index={index} />
       </Box>
     </VStack>
   ))}

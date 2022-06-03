@@ -1,5 +1,18 @@
 import "./index.css";
+import "@rainbow-me/rainbowkit/dist/index.css";
 
+import {
+  getDefaultWallets,
+  RainbowKitProvider,
+} from '@rainbow-me/rainbowkit';
+import {
+  chain,
+  configureChains,
+  createClient,
+  WagmiConfig,
+} from 'wagmi';
+import { alchemyProvider } from 'wagmi/providers/alchemy';
+import { publicProvider } from 'wagmi/providers/public';
 import { ApolloProvider } from "@apollo/react-hooks";
 import ApolloClient from "apollo-boost";
 import { ChakraProvider } from '@chakra-ui/react'
@@ -18,6 +31,27 @@ const client = new ApolloClient({
   uri: "https://api.thegraph.com/subgraphs/name/paulrberg/create-eth-app",
 });
 
+// Configure Wagmi client
+const { chains, provider } = configureChains(
+  [chain.mainnet, chain.polygon, chain.optimism, chain.arbitrum],
+  [
+    alchemyProvider({ alchemyId: process.env.ALCHEMY_ID }),
+    publicProvider()
+  ]
+);
+
+const { connectors } = getDefaultWallets({
+  appName: 'Cookbook',
+  chains
+});
+
+const wagmiClient = createClient({
+  autoConnect: true,
+  connectors,
+  provider
+})
+
+// Extend ChakraUI theme with brand colors
 const theme = extendTheme({
   colors: {
     brand: {
@@ -34,32 +68,36 @@ const theme = extendTheme({
 })
 
 createRoot(document.getElementById('root')).render(
-  <ApolloProvider client={client}>
-    <ChakraProvider theme={theme}>
-      <Router>
-        <Routes>
-          <Route path="/" element={<App />}>
-            <Route index element={<Home />} />
-            <Route path="blog" element={<Blogposts />}>
-              <Route path=":digest" element={<Blogpost />} />
-            </Route>
-            <Route path="create" element={<CreateRecipe />} />
-            <Route path="recipes" element={<Recipes />}>
-              <Route index element={<RecipeFeatures />} />
-              <Route path=":recipeId" element={<Recipe />} />
-            </Route>
-            <Route path="profile" element={<Profile />} />
-            <Route
-              path="*"
-              element={
-                <main style={{ padding: "1rem" }}>
-                  <p>There's nothing here!</p>
-                </main>
-              }
-            />
-          </Route>
-        </Routes>
-      </Router>
-    </ChakraProvider>
-  </ApolloProvider>,
+  <WagmiConfig client={wagmiClient}>
+    <RainbowKitProvider chains={chains}>
+      <ApolloProvider client={client}>
+        <ChakraProvider theme={theme}>
+          <Router>
+            <Routes>
+              <Route path="/" element={<App />}>
+                <Route index element={<Home />} />
+                <Route path="blog" element={<Blogposts />}>
+                  <Route path=":digest" element={<Blogpost />} />
+                </Route>
+                <Route path="create" element={<CreateRecipe />} />
+                <Route path="recipes" element={<Recipes />}>
+                  <Route index element={<RecipeFeatures />} />
+                  <Route path=":recipeId" element={<Recipe />} />
+                </Route>
+                <Route path="profile" element={<Profile />} />
+                <Route
+                  path="*"
+                  element={
+                    <main style={{ padding: "1rem" }}>
+                      <p>There's nothing here!</p>
+                    </main>
+                  }
+                />
+              </Route>
+            </Routes>
+          </Router>
+        </ChakraProvider>
+      </ApolloProvider>
+    </RainbowKitProvider>
+  </WagmiConfig>,
 );
