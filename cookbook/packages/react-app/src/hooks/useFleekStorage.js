@@ -20,14 +20,14 @@ const useFleekStorage = () => {
   }
 
   // Upload recipe to Fleek Storage in the user's bucket
-  async function fleekStorageUploadRecipe(recipe){
+  async function fleekStorageUploadRecipeData(recipe){
     let date = new Date()
     let timestamp = date.getTime()
     let data = JSON.stringify(recipe)
     let input = {
       apiKey: fleekStorageKey,
       apiSecret: fleekStorageSecret,
-      key: `${recipe.userId}/${recipe.cookbookId}/${recipe.name}-${timestamp}`,
+      key: `${recipe.userId}/${recipe.cookbookId}/${recipe.name}/recipe-${timestamp}`,
       ContentType: 'application/json',
       data: data,
     }
@@ -40,16 +40,15 @@ const useFleekStorage = () => {
   }
 
   // Upload images in the recipe to the fleek storage's recipe bucket
-  async function fleekStorageUploadImages(images, name, userId, cookbookId){
+  async function fleekStorageUploadRecipeImages(imageInfo, name, userId, cookbookId){
     let promises = []
-    for (let i = 0; i < images.length; i++) {
-      let image = images[i]
-      let data = image.data
+    for (let i = 0; i < imageInfo.length; i++) {
+      let data = imageInfo[i].image
       let input = {
         apiKey: fleekStorageKey,
         apiSecret: fleekStorageSecret,
-        key: `${userId}/${cookbookId}/${name}/images/${i}`,
-        ContentType: image.type,
+        key: `${userId}/${cookbookId}/${name}/images/${imageInfo[i].type}/${imageInfo[i].name}`,
+        ContentType: imageInfo[i].image.type,
         data: data,
       }
       let upload = await fleek.upload(input)
@@ -58,7 +57,7 @@ const useFleekStorage = () => {
     return promises
   }
 
-  return [fleekStorageGet, fleekStorageUploadRecipe, fleekStorageUploadImages]
+  return [fleekStorageGet, fleekStorageUploadRecipeData, fleekStorageUploadRecipeImages]
 }
 
 export default useFleekStorage

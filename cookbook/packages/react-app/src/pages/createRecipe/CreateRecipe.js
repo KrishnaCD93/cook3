@@ -8,18 +8,10 @@ import useFleekStorage from "../../hooks/useFleekStorage";
 import { useAccount } from 'wagmi'
 
 const CreateRecipe = () => {
-  const [, fleekStorageUploadRecipe,] = useFleekStorage();
+  const [, fleekStorageUploadRecipeData, fleekStorageUploadRecipeImages] = useFleekStorage();
   const { data: account } = useAccount();
   const [uploading, setUploading] = useState(false);
-  const recipe = {
-    name: '',
-    description: '',
-    ingredients: [],
-    steps: [],
-    userId: '',
-    cookbookId: '',
-  }
-  const { handleSubmit, register, formState: { errors, isSubmitting } } = useForm({defaultValues: recipe})
+  const { handleSubmit, register, formState: { errors, isSubmitting } } = useForm()
 
   const onSubmit = async (formData) => {
     try {
@@ -35,46 +27,54 @@ const CreateRecipe = () => {
         let description = formData.description
         let ingredients = []
         let steps = []
+        let imageInfo = []
         formData.ingredients.forEach((ingredient) => {
           if (!ingredient.image) {
             ingredients.push({
               name: ingredient.name,
               quantity: ingredient.quantity,
-              ingredientMeta: ingredient.ingredientMeta,
-              image: ''
+              ingredientMeta: ingredient.ingredientMeta
             })
           } else if (ingredient.image) {
-              ingredients.push({
-                name: ingredient.name,
-                quantity: ingredient.quantity,
-                ingredientMeta: ingredient.ingredientMeta,
-                image: URL.createObjectURL(ingredient.image[0])
+            ingredients.push({
+              name: ingredient.name,
+              quantity: ingredient.quantity,
+              ingredientMeta: ingredient.ingredientMeta
+            })
+            imageInfo.push({
+              name: ingredient.name,
+              type: 'ingredient',
+              image: ingredient.image[0]
             })
           }
         })
-        formData.steps.forEach((step) => {
+        formData.steps.forEach((step, index) => {
           if (!step.image) {
             steps.push({
               action: step.action,
               trigger: step.trigger,
-              myMeta: step.myMeta,
-              image: ''
+              myMeta: step.myMeta
             })
           } else if (step.image) {
             steps.push({
               action: step.action,
               trigger: step.trigger,
-              myMeta: step.myMeta,
-              image: URL.createObjectURL(step.image[0])
+              myMeta: step.myMeta
+            })
+            imageInfo.push({
+              name: `step-${index}`,
+              type: 'step',
+              image: step.image[0]
             })
           }
         })
         let recipe = { userId, cookbookId, name, description, ingredients, steps }
-        console.log('recipe: ', recipe)
-        let uploadRecipe = await fleekStorageUploadRecipe(recipe);
+        console.log(recipe);
+        let uploadRecipe = await fleekStorageUploadRecipeData(recipe);
         console.log('uploaded data: ', uploadRecipe);
+        let uploadImages = await fleekStorageUploadRecipeImages(imageInfo, name, userId, cookbookId);
+        console.log('uploaded images: ', uploadImages);
         setUploading(false);
-        alert('Recipe created!')
       }
     } catch (error) {
       console.log('error: ', error)
