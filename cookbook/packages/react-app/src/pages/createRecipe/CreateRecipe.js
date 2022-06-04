@@ -159,7 +159,7 @@ function GetRecipeName() {
           }}
         />
       </Tooltip>
-      <Input py={2} px={2} as={EditableInput}
+      <Input py={2} px={2} as={EditableInput} isInvalid={false}
       {...register('name', {required: 'Give your recipe a name'})} />
       <FormErrorMessage>
         {errors.name && errors.name.message}
@@ -189,7 +189,7 @@ function GetDescription() {
           }}
         />
       </Tooltip>
-      <Input py={2} px={2} as={EditableTextarea}
+      <Input py={2} px={2} as={EditableTextarea} isInvalid={false}
         {...register('description')} />
         <FormErrorMessage>
           {errors.description && errors.description.message}
