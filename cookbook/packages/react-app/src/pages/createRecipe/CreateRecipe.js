@@ -1,4 +1,4 @@
-import { EditablePreview, useColorModeValue, IconButton, Input, useEditableControls, ButtonGroup, Editable, Tooltip, EditableInput, EditableTextarea, Heading, Container, CSSReset, Flex, Box, Text, Textarea, VStack } from "@chakra-ui/react";
+import { EditablePreview, useColorModeValue, IconButton, Input, useEditableControls, ButtonGroup, Editable, Tooltip, EditableInput, EditableTextarea, Heading, Container, CSSReset, Flex, Box, Text, Textarea, VStack, StackDivider } from "@chakra-ui/react";
 import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
 import { useForm, FormProvider, useFormContext } from 'react-hook-form'
 import { FormErrorMessage, FormLabel, FormControl, Button } from '@chakra-ui/react'
@@ -92,31 +92,33 @@ const CreateRecipe = () => {
   return (
     <Body>
     <CSSReset />
-    <Container w='100%' centerContent>
-      <Heading>Create Recipe</Heading>
-      <FormProvider {...{ handleSubmit, register, errors, isSubmitting }}>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <FormControl isInvalid={errors} as='fieldset' isDisabled={uploading}>
-            <FormLabel htmlFor="name">
-              <GetRecipeName />
-            </FormLabel>
-            <FormLabel htmlFor="description">
-              <GetDescription />
-            </FormLabel>
-            <FormLabel htmlFor="ingredients">
-              <Text fontSize='2xl' fontWeight='bold'>Ingredients</Text>
-              <GetIngredients />
-            </FormLabel>
-            <FormLabel htmlFor="steps">
-              <Text fontSize='2xl' fontWeight='bold'>Steps</Text>
-              <GetSteps />
-            </FormLabel>
-          </FormControl>
-          <Button mt={4} colorScheme='brand' isLoading={isSubmitting} type='submit'>
-            Create Recipe
-          </Button>
-        </form>
-      </FormProvider>
+    <Container w='100%' bg='brand.200' boxShadow={'inner'} centerContent>
+      <Box margin={'30px'} boxShadow='dark-lg' bg='brand.100'>
+        <VStack divider={<StackDivider borderColor='brand.200' />} spacing={4} color={'brand.400'} margin='25px'>
+          <Heading>Create Recipe</Heading>
+          <FormProvider {...{ handleSubmit, register, errors, isSubmitting }}>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <FormControl isInvalid={errors} as='fieldset' isDisabled={uploading}>
+                <FormLabel htmlFor="name">
+                  <GetRecipeName />
+                </FormLabel>
+                <FormLabel htmlFor="description">
+                  <GetDescription />
+                </FormLabel>
+                <FormLabel htmlFor="ingredients">
+                  <GetIngredients />
+                </FormLabel>
+                <FormLabel htmlFor="steps">
+                  <GetSteps />
+                </FormLabel>
+              </FormControl>
+              <Button mt={4} colorScheme='brand' isLoading={isSubmitting} type='submit'>
+                Create Recipe
+              </Button>
+            </form>
+          </FormProvider>
+        </VStack>
+      </Box>
     </Container>
     </Body>
   )
@@ -144,13 +146,13 @@ function EditableControls() {
 function GetRecipeName() {
   const { register, errors } = useFormContext();
   return (
-    <>
-    <Text fontSize='2xl' fontWeight='bold'>Recipe Name</Text>
+    <Container p={2} m={2} bg='brand.500' centerContent>
+    <Text color={'brand.400'} as='u' align='center' fontSize={'2xl'}>Recipe Name</Text>
     <Editable
       placeholder="...name"
       isPreviewFocusable={true}
       selectAllOnFocus={false}>
-      <Tooltip label="Click to add recipe name">
+      <Tooltip label="Give your recipe a name">
         <EditablePreview
           py={2}
           px={2}
@@ -166,7 +168,7 @@ function GetRecipeName() {
       </FormErrorMessage>
       <EditableControls />
     </Editable>
-    </>
+    </Container>
   )
 }
 
@@ -174,8 +176,8 @@ function GetRecipeName() {
 function GetDescription() {
   const { register, errors } = useFormContext();
   return (
-    <>
-    <Text fontSize='2xl' fontWeight='bold'>Description</Text>
+    <Container p={2} m={2} bg='brand.500' centerContent>
+    <Text color={'brand.400'} as='u' align='center' fontSize={'2xl'}>Description</Text>
     <Editable
       placeholder="...description"
       isPreviewFocusable={true}
@@ -196,7 +198,7 @@ function GetDescription() {
         </FormErrorMessage>
       <EditableControls />
     </Editable>
-    </>
+    </Container>
   )
 }
 
@@ -207,7 +209,7 @@ const GetIngredients = () => {
 
   function GetName({ index }) {
     return (
-      <>
+      <Container p={2} m={2} bg='brand.500' centerContent>
       <Tooltip label="Add some ingredients">
         <Input py={2} px={2} placeholder="...name" variant={'flushed'} isInvalid={false}
         {...register(`ingredients[${index}].name`, {required: 'Give the ingredient a name'})} />
@@ -217,7 +219,7 @@ const GetIngredients = () => {
           {errors.ingredients[index].name && errors.ingredients[index].name.message}
         </FormErrorMessage>
       )}
-      </>
+      </Container>
     )
   }
 
@@ -256,9 +258,10 @@ const GetIngredients = () => {
   }
 
   return (
-    <>
+    <Container p={2} m={2} bg='brand.500' centerContent>
+    <Text color={'brand.400'} as='u' align='center' fontSize={'2xl'}>Ingredients</Text>
     {Array.from({ length: numIngredients }, (_, index) => (
-    <Flex justifyContent="space-between" alignItems="center" mt={4} key={index}>
+    <VStack justifyContent="space-between" alignItems="center" mt={4} key={index}>
       <Box>
         <GetName index={index} />
       </Box>
@@ -271,13 +274,13 @@ const GetIngredients = () => {
       <Box>
         <GetImage index={index} />
       </Box>
-    </Flex>
+    </VStack>
     ))}
     <ButtonGroup colorScheme={'brand'} justifyContent="end" size="sm" w="full" spacing={2} mt={2}>
       <Button onClick={() => setNumIngredients(numIngredients + 1)}>＋ Ingredient</Button>
       <IconButton icon={<CloseIcon boxSize={3} />} onClick={() => setNumIngredients(numIngredients - 1)} />
     </ButtonGroup>
-    </>
+    </Container>
   )
 }
 
@@ -348,7 +351,8 @@ const GetSteps = () => {
   }
 
 return (
-  <Container p={2} m={2} centerContent>
+  <Container p={2} m={2} bg='brand.500' centerContent>
+  <Text color={'brand.400'} as='u' align='center' fontSize={'2xl'}>Steps</Text>
   <Flex p={2} m={2} overflowWrap="wrap">
   {Array.from({ length: numSteps }, (_, index) => (
     <VStack justifyContent="space-between" alignItems="center" mt={4} key={index}>
