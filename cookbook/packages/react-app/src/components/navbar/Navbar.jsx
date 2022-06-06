@@ -2,7 +2,7 @@ import { Box, Flex, Image, Link, Spacer, Stack, Text } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { NavLink } from "react-router-dom";
 import { Header } from "../index"
-import logo from '../../assets/Logo - Limed Spruce.svg'
+import logo from '../../assets/Logo - Limed Spruce.png'
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import { BiFoodMenu } from "react-icons/bi";
 
