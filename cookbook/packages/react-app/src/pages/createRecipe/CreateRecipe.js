@@ -7,8 +7,9 @@ import { Body } from "../../components";
 import useFleekStorage from "../../hooks/useFleekStorage";
 import { useAccount } from 'wagmi'
 
+// Create recipe page with recipe name, description, ingredients, steps, metaquality tags, and recipe image
 const CreateRecipe = () => {
-  const [, fleekStorageUploadRecipeData, fleekStorageUploadRecipeImages] = useFleekStorage();
+  const [fleekStorageUploadRecipeData, fleekStorageUploadRecipeImages, fleekStorageSaveToProfile] = useFleekStorage();
   const { data: account } = useAccount();
   const [uploading, setUploading] = useState(false);
   const { handleSubmit, register, formState: { errors, isSubmitting } } = useForm()
@@ -22,14 +23,15 @@ const CreateRecipe = () => {
         setUploading(true)
         console.log(formData)
         let userId = account.address
-        let cookbookId = 0
+        let cookbookId = 0 // set cookbook id to 0 for now and let users create cookbooks in their profile page
         let name = formData.name
         let description = formData.description
+        let equipment = formData.equipment
         let ingredients = []
         let steps = []
         let metaQualityTags = []
         let imageInfo = []
-        if (formData.recipeImage) {
+        if (formData.recipeImage[0]) {
           imageInfo.push({
             name: name,
             type: 'recipe',
@@ -37,17 +39,22 @@ const CreateRecipe = () => {
           })
         }
         formData.ingredients.forEach((ingredient) => {
-          if (!ingredient.image) {
+          if (!ingredient.name) {
+            return;
+          }
+          if (!ingredient.image[0]) {
             ingredients.push({
               name: ingredient.name,
               quantity: ingredient.quantity,
-              ingredientMeta: ingredient.ingredientMeta
+              ingredientMeta: ingredient.ingredientMeta,
+              hasImage: false
             })
-          } else if (ingredient.image) {
+          } else if (ingredient.image[0]) {
             ingredients.push({
               name: ingredient.name,
               quantity: ingredient.quantity,
-              ingredientMeta: ingredient.ingredientMeta
+              ingredientMeta: ingredient.ingredientMeta,
+              hasImage: true,
             })
             imageInfo.push({
               name: ingredient.name,
@@ -57,17 +64,24 @@ const CreateRecipe = () => {
           }
         })
         formData.steps.forEach((step, index) => {
-          if (!step.actionImage && !step.triggerImage) {
+          if (!step.action && !step.trigger) {
+            return;
+          }
+          if (!step.actionImage[0] && !step.triggerImage[0]) {
             steps.push({
               action: step.action,
               trigger: step.trigger,
-              myMeta: step.myMeta
+              stepMeta: step.stepMeta,
+              hasActionImage: false,
+              hasTriggerImage: false
             })
-          } else if (step.actionImage && step.triggerImage) {
+          } else if (step.actionImage[0] && step.triggerImage[0]) {
             steps.push({
               action: step.action,
               trigger: step.trigger,
-              myMeta: step.myMeta
+              stepMeta: step.stepMeta,
+              hasActionImage: true,
+              hasTriggerImage: true
             })
             imageInfo.push({
               name: `step-${index + 1}-action`,
@@ -79,22 +93,26 @@ const CreateRecipe = () => {
               type: 'trigger',
               image: step.triggerImage[0]
             })
-          } else if (step.actionImage && !step.triggerImage) {
+          } else if (step.actionImage[0] && !step.triggerImage[0]) {
             steps.push({
               action: step.action,
               trigger: step.trigger,
-              myMeta: step.myMeta
+              stepMeta: step.stepMeta,
+              hasActionImage: true,
+              hasTriggerImage: false
             })
             imageInfo.push({
               name: `step-${index + 1}-action`,
               type: 'action',
               image: step.actionImage[0]
             })
-          } else if (!step.actionImage && step.triggerImage) {
+          } else if (!step.actionImage[0] && step.triggerImage[0]) {
             steps.push({
               action: step.action,
               trigger: step.trigger,
-              myMeta: step.myMeta
+              stepMeta: step.stepMeta,
+              hasActionImage: false,
+              hasTriggerImage: true
             })
             imageInfo.push({
               name: `step-${index + 1}-trigger`,
@@ -102,16 +120,21 @@ const CreateRecipe = () => {
               image: step.triggerImage[0]
             })
           }
-          formData.metaQualityTags.forEach((tag) => {
-            metaQualityTags.push(tag)
-          })
+          formData.metaQualityTags.forEach((tag) => { metaQualityTags.push(tag) })
         })
-        let recipe = { userId, cookbookId, name, description, ingredients, steps, metaQualityTags }
+        let recipe = { userId, cookbookId, name, description, ingredients, steps, metaQualityTags, equipment }
         console.log(recipe);
         let uploadRecipe = await fleekStorageUploadRecipeData(recipe);
         console.log('uploaded data: ', uploadRecipe);
+        console.log(imageInfo)
         let uploadImages = await fleekStorageUploadRecipeImages(imageInfo, name, userId, cookbookId);
         console.log('uploaded images: ', uploadImages);
+        let uploadedRecipeHash = uploadRecipe.hash
+        let uploadedImageHashes = []
+        uploadImages.forEach((image) => { uploadedImageHashes.push({ imageName: image.imageName, imageHash: image.hash }) })
+        console.log('uploadedImageHashes: ', uploadedImageHashes)
+        let saveToProfile = await fleekStorageSaveToProfile(name, uploadedRecipeHash, uploadedImageHashes, userId)
+        console.log('save to profile: ', saveToProfile)
         setUploading(false);
         alert('Recipe created!')
       }
@@ -152,6 +175,9 @@ const CreateRecipe = () => {
                 </FormLabel>
                 <FormLabel htmlFor="metaQualityTags">
                   <GetMetaQualityTags />
+                </FormLabel>
+                <FormLabel htmlFor="equipment">
+                  <GetEquipment />
                 </FormLabel>
               </FormControl>
               <Button mt={4}  bg='brand.500' color='brand.400' boxShadow={'dark-lg'} _hover={{ bg: 'brand.800'}}
@@ -194,10 +220,10 @@ function GetRecipeName() {
     <Container p={2} m={2} bg='brand.500' boxShadow={'dark-lg'} centerContent>
     <Text color={'brand.400'} as='u' align='center' fontSize={'2xl'}>Recipe Name</Text>
     <Editable
-      placeholder="...name"
+      placeholder="...name, eg. Omelette"
       isPreviewFocusable={true}
       selectAllOnFocus={false}>
-      <Tooltip label="Give your recipe a name">
+      <Tooltip label="Give your recipe a name.">
         <EditablePreview
           py={2}
           px={2}
@@ -225,7 +251,7 @@ function GetDescription() {
     <Container p={2} m={2} bg='brand.500' boxShadow={'dark-lg'} centerContent>
     <Text color={'brand.400'} as='u' align='center' fontSize={'2xl'}>Description</Text>
     <Editable
-      placeholder="...description"
+      placeholder="...description, eg. Indian style omelette stuffed with cheese and tomatoes"
       isPreviewFocusable={true}
       selectAllOnFocus={false}>
       <Tooltip label="Add a short description of the dish.">
@@ -258,7 +284,7 @@ const GetIngredients = () => {
     return (
       <>
       <Tooltip label="Name of the ingredient">
-        <Input py={2} px={2} placeholder="...name" variant={'flushed'} isInvalid={false}
+        <Input py={2} px={2} placeholder="...name, eg. eggs, large" variant={'flushed'} isInvalid={false}
         {...register(`ingredients[${index}].name`, {required: 'Give the ingredient a name'})} />
       </Tooltip>
       {errors.ingredients && errors.ingredients[index] && errors.ingredients[index].name && (
@@ -275,7 +301,7 @@ const GetIngredients = () => {
     return (
       <>
       <Tooltip label="Add the quantity of the ingredient">
-        <Input py={2} px={2} placeholder="...amount" variant={'flushed'} isInvalid={false}
+        <Input py={2} px={2} placeholder="...amount, eg. 2" variant={'flushed'} isInvalid={false}
         {...register(`ingredients[${index}].quantity`, {required: 'Give the ingredient a quantity'})} />
       </Tooltip>
       {errors.ingredients && errors.ingredients[index] && errors.ingredients[index].quantity && (
@@ -291,7 +317,7 @@ const GetIngredients = () => {
   function GetIngredientMeta({ index }) {
     return (
       <Tooltip label="How does this ingredient affect the taste of the recipe?">
-        <Textarea py={2} px={2} placeholder="...ingredient's meta" variant={'flushed'} isInvalid={false}
+        <Textarea py={2} px={2} placeholder="...ingredient's meta, eg. I use brown eggs from free roam chickens" variant={'flushed'} isInvalid={false}
         {...register(`ingredients[${index}].ingredientMeta`)} />
       </Tooltip>
     )
@@ -301,7 +327,7 @@ const GetIngredients = () => {
   function GetImage({ index }) {
     return (
       <Tooltip label="Add an image of the ingredient">
-        <Input py={2} px={2} placeholder="...image" type='file' variant={'flushed'} isInvalid={false}
+        <Input py={2} px={2} type='file' variant={'flushed'} isInvalid={false}
         {...register(`ingredients[${index}].image`)} />
       </Tooltip>
     )
@@ -346,7 +372,7 @@ const GetSteps = () => {
     return (
       <>
       <Tooltip label="What're the actions for this step of the recipe?">
-        <Textarea py={2} px={2} placeholder="...action" variant={'flushed'} isInvalid={false}
+        <Textarea py={2} px={2} placeholder="...action, eg. crack eggs into a bowl, use a fork to mix with salt and pepper" variant={'flushed'} isInvalid={false}
           {...register(`steps[${index}].action`, {required: 'Add an action',
           maxLength: {value: 280, message: 'Action must be less than 280 characters'}})} />
       </Tooltip>
@@ -361,17 +387,11 @@ const GetSteps = () => {
 // Function to get the trigger for the next step in the recipe
   function GetTrigger({ index }) {
     return (
-      <>
       <Tooltip label="What triggers the next step of the recipe?">
-        <Textarea py={2} px={2} placeholder="...trigger" variant={'flushed'} isInvalid={false}
-          {...register(`steps[${index}].trigger`, {required: 'Add an trigger',
-          maxLength: {value: 280, message: 'Trigger must be less than 280 characters'}})} />
+        <Textarea py={2} px={2} placeholder="...trigger, eg. stir until contents are mixed well" variant={'flushed'} isInvalid={false}
+          {...register(`steps[${index}].trigger`, 
+          {maxLength: {value: 280, message: 'Trigger must be less than 280 characters'}})} />
       </Tooltip>
-      {errors.steps && errors.steps[index] && errors.steps[index].trigger && (
-      <FormErrorMessage>
-        {errors.steps[index].trigger && errors.steps[index].trigger.message}
-      </FormErrorMessage>)}
-      </>
     )
   }
 
@@ -380,13 +400,13 @@ const GetSteps = () => {
     return (
       <>
       <Tooltip label="How does the action(s) taken in this step affect the taste?">
-        <Textarea py={2} px={2} placeholder="...step's meta" variant={'flushed'} isInvalid={false}
-          {...register(`steps[${index}].myMeta`, {
+        <Textarea py={2} px={2} placeholder="...step's meta, eg. replace pepper with red chilli powder to this mix to make it spicy" variant={'flushed'} isInvalid={false}
+          {...register(`steps[${index}].stepMeta`, {
           maxLength: {value: 280, message: 'Meta must be less than 280 characters'}})} />
       </Tooltip>
-      {errors.steps && errors.steps[index] && errors.steps[index].myMeta && (
+      {errors.steps && errors.steps[index] && errors.steps[index].stepMeta && (
       <FormErrorMessage>
-        {errors.steps[index].myMeta && errors.steps[index].myMeta.message}
+        {errors.steps[index].stepMeta && errors.steps[index].stepMeta.message}
       </FormErrorMessage>)}
       </>
     )
@@ -455,12 +475,10 @@ function GetMetaQualityTags() {
   // Function to get the tag of the metaquality
   function GetTag({ index }) {
     return (
-      <>
       <Tooltip label="What're the qualities of this recipe? How does this recipe taste? What other recipes does it work well with?">
-        <Input py={2} px={2} placeholder="...tag" variant={'flushed'} isInvalid={false}
+        <Input py={2} px={2} placeholder="...tag, eg. high protien" variant={'flushed'} isInvalid={false}
           {...register(`metaQualityTags[${index}]`)} />
       </Tooltip>
-      </>
     )
   }
 
@@ -490,5 +508,32 @@ function GetMetaQualityTags() {
     </Container>
   )
 }
+
+// Function to get the equipment used in the recipe
+function GetEquipment() {
+  const { register } = useFormContext();
+
+  return (
+    <Container p={2} m={2} bg='brand.500' boxShadow={'dark-lg'} centerContent>
+      <Text color={'brand.400'} as='u' align='center' fontSize={'2xl'}>Equipment</Text>
+      <Editable
+        placeholder="...equipment, eg. fork, spatula, pan"
+        isPreviewFocusable={true}
+        selectAllOnFocus={false}>
+        <Tooltip label="List the equipment used, separated by commas.">
+          <EditablePreview
+            py={2}
+            px={2}
+            _hover={{
+              background: useColorModeValue("brand.400", "brand.600")
+            }}
+          />
+        </Tooltip>
+        <Input py={2} px={2} as={EditableTextarea} isInvalid={false} {...register('equipment')} />
+      </Editable>
+    </Container>
+  )
+}
+
 
 export default CreateRecipe;

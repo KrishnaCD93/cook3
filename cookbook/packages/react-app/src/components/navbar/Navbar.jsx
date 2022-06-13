@@ -26,7 +26,7 @@ function Logo(props) {
   return (
     <Link as={NavLink} to='/'>
       <Box {...props}>
-        <Image src={logo} alt="Logo" />
+        <Image src={logo} alt="Logo" borderRadius='50%' />
       </Box>
     </Link>
   )
@@ -85,8 +85,8 @@ const NavBarContainer = ({ children, ...props }) => {
       justify="space-between"
       wrap="wrap"
       w="100%"
-      mb={8}
-      p={8}
+      //mb={8}
+      //p={8}
       {...props}
     >
       {children}
