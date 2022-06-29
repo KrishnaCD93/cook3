@@ -14,6 +14,15 @@ const Recipes = () => {
   const { data: account } = useAccount();
   const [listFiles, fleekStorageGet, fleekStorageGetByHash] = useFleekStorage();
 
+  useEffect(() => {
+    const fetchData = async () => {
+      let cookbooks = await listFiles();
+      setCookbooks(cookbooks);
+    }
+    fetchData();
+    console.log(cookbooks);
+  }, []);
+
   const dropDown = useSpring({
     opacity: showRecipe ? 1 : 0,
     marginTop: showRecipe ? 0 : -500

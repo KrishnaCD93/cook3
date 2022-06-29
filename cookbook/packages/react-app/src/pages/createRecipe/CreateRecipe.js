@@ -1,18 +1,20 @@
-import { EditablePreview, useColorModeValue, IconButton, Input, useEditableControls, ButtonGroup, Editable, Tooltip, EditableInput, EditableTextarea, Heading, Container, CSSReset, Box, Text, Textarea, VStack, StackDivider, Wrap, WrapItem } from "@chakra-ui/react";
+import { EditablePreview, useColorModeValue, IconButton, Input, useEditableControls, ButtonGroup, Editable, Tooltip, EditableInput, EditableTextarea, Heading, Container, CSSReset, Box, Text, Textarea, VStack, StackDivider, Wrap, WrapItem, useToast } from "@chakra-ui/react";
 import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
 import { useForm, FormProvider, useFormContext } from 'react-hook-form'
 import { FormErrorMessage, FormLabel, FormControl, Button } from '@chakra-ui/react'
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Body } from "../../components";
 import useFleekStorage from "../../hooks/useFleekStorage";
 import { useAccount } from 'wagmi'
+import { FaImage } from 'react-icons/fa';
 
 // Create recipe page with recipe name, description, ingredients, steps, metaquality tags, and recipe image
 const CreateRecipe = () => {
-  const [fleekStorageUploadRecipeData, fleekStorageUploadRecipeImages, fleekStorageSaveToProfile] = useFleekStorage();
+  const [fleekStorageUploadRecipeData, fleekStorageUploadRecipeImage] = useFleekStorage();
   const { data: account } = useAccount();
   const [uploading, setUploading] = useState(false);
   const { handleSubmit, register, formState: { errors, isSubmitting } } = useForm()
+  const toast = useToast()
 
   const onSubmit = async (formData) => {
     try {
@@ -25,20 +27,20 @@ const CreateRecipe = () => {
         let userId = account.address
         let cookbookId = 0 // set cookbook id to 0 for now and let users create cookbooks in their profile page
         let name = formData.name
+        let recipeImageURL = ''
         let description = formData.description
         let equipment = formData.equipment
         let ingredients = []
         let steps = []
         let metaQualityTags = []
-        let imageInfo = []
         if (formData.recipeImage[0]) {
-          imageInfo.push({
+          let imageInfo = {
             name: name,
-            type: 'recipe',
-            image: formData.recipeImage[0]
-          })
+            type: 'recipe'
+          }
+          recipeImageURL = await fleekStorageUploadRecipeImage(imageInfo, formData.recipeImage[0], name, userId, cookbookId)
         }
-        formData.ingredients.forEach((ingredient) => {
+        formData.ingredients.forEach( async (ingredient) => {
           if (!ingredient.name) {
             return;
           }
@@ -47,23 +49,23 @@ const CreateRecipe = () => {
               name: ingredient.name,
               quantity: ingredient.quantity,
               ingredientMeta: ingredient.ingredientMeta,
-              hasImage: false
+              imageURL: null
             })
           } else if (ingredient.image[0]) {
+            let imageInfo = {
+              name: ingredient.name,
+              type: 'ingredient'
+            }
+            let ingredientImageURL = await fleekStorageUploadRecipeImage(imageInfo, ingredient.image[0], name, userId, cookbookId)
             ingredients.push({
               name: ingredient.name,
               quantity: ingredient.quantity,
               ingredientMeta: ingredient.ingredientMeta,
-              hasImage: true,
-            })
-            imageInfo.push({
-              name: ingredient.name,
-              type: 'ingredient',
-              image: ingredient.image[0]
+              imageURL: ingredientImageURL,
             })
           }
         })
-        formData.steps.forEach((step, index) => {
+        formData.steps.forEach( async (step, index) => {
           if (!step.action && !step.trigger) {
             return;
           }
@@ -72,71 +74,67 @@ const CreateRecipe = () => {
               action: step.action,
               trigger: step.trigger,
               stepMeta: step.stepMeta,
-              hasActionImage: false,
-              hasTriggerImage: false
+              actionImageURL: null,
+              triggerImageURL: null
             })
           } else if (step.actionImage[0] && step.triggerImage[0]) {
+            let actionImageInfo = {
+              name: `step-${index + 1}-action`,
+              type: 'action'
+            }
+            let triggerImageInfo = {
+              name: `step-${index + 1}-trigger`,
+              type: 'trigger'
+            }
+            let actionImageURL = await fleekStorageUploadRecipeImage(actionImageInfo, step.actionImage[0], name, userId, cookbookId)
+            let triggerImageURL = await fleekStorageUploadRecipeImage(triggerImageInfo, step.triggerImage[0], name, userId, cookbookId)
             steps.push({
               action: step.action,
               trigger: step.trigger,
               stepMeta: step.stepMeta,
-              hasActionImage: true,
-              hasTriggerImage: true
-            })
-            imageInfo.push({
-              name: `step-${index + 1}-action`,
-              type: 'action',
-              image: step.actionImage[0]
-            })
-            imageInfo.push({
-              name: `step-${index + 1}-trigger`,
-              type: 'trigger',
-              image: step.triggerImage[0]
+              actionImageURL: actionImageURL,
+              triggerImageURL: triggerImageURL,
             })
           } else if (step.actionImage[0] && !step.triggerImage[0]) {
+            let imageInfo = {
+              name: `step-${index + 1}-action`,
+              type: 'action'
+            }
+            let actionImageURL = await fleekStorageUploadRecipeImage(imageInfo, step.actionImage[0], name, userId, cookbookId)
             steps.push({
               action: step.action,
               trigger: step.trigger,
               stepMeta: step.stepMeta,
-              hasActionImage: true,
-              hasTriggerImage: false
-            })
-            imageInfo.push({
-              name: `step-${index + 1}-action`,
-              type: 'action',
-              image: step.actionImage[0]
+              actionImageURL: actionImageURL,
+              triggerImageURL: null
             })
           } else if (!step.actionImage[0] && step.triggerImage[0]) {
+            let imageInfo = {
+              name: `step-${index + 1}-trigger`,
+              type: 'trigger'
+            }
+            let triggerImageURL = await fleekStorageUploadRecipeImage(imageInfo, step.triggerImage[0], name, userId, cookbookId)
             steps.push({
               action: step.action,
               trigger: step.trigger,
               stepMeta: step.stepMeta,
-              hasActionImage: false,
-              hasTriggerImage: true
-            })
-            imageInfo.push({
-              name: `step-${index + 1}-trigger`,
-              type: 'trigger',
-              image: step.triggerImage[0]
+              actionImageURL: null,
+              triggerImageURL: triggerImageURL
             })
           }
           formData.metaQualityTags.forEach((tag) => { metaQualityTags.push(tag) })
         })
-        let recipe = { userId, cookbookId, name, description, ingredients, steps, metaQualityTags, equipment }
+        let recipe = { userId, cookbookId, name, recipeImageURL, description, ingredients, steps, metaQualityTags, equipment }
         console.log(recipe);
         let uploadRecipe = await fleekStorageUploadRecipeData(recipe);
         console.log('uploaded data: ', uploadRecipe);
-        console.log(imageInfo)
-        let uploadImages = await fleekStorageUploadRecipeImages(imageInfo, name, userId, cookbookId);
-        console.log('uploaded images: ', uploadImages);
-        let uploadedRecipeHash = uploadRecipe.hash
-        let uploadedImageHashes = []
-        uploadImages.forEach((image) => { uploadedImageHashes.push({ imageName: image.imageName, imageHash: image.hash }) })
-        console.log('uploadedImageHashes: ', uploadedImageHashes)
-        let saveToProfile = await fleekStorageSaveToProfile(name, uploadedRecipeHash, uploadedImageHashes, userId)
-        console.log('save to profile: ', saveToProfile)
         setUploading(false);
-        alert('Recipe created!')
+        toast({
+          title: 'Recipe uploaded successfully',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        })
       }
     } catch (error) {
       console.log('error: ', error)
@@ -216,6 +214,12 @@ function EditableControls() {
 // Function to get recipe name
 function GetRecipeName() {
   const { register, errors } = useFormContext();
+  const { ref, ...fields } = register('recipeImage')
+  const hiddenFileInput = useRef(null);
+  const imageUpload = event => { 
+    hiddenFileInput.current?.click();
+  }
+
   return (
     <Container p={2} m={2} bg='brand.500' boxShadow={'dark-lg'} centerContent>
     <Text color={'brand.400'} as='u' align='center' fontSize={'2xl'}>Recipe Name</Text>
@@ -228,7 +232,7 @@ function GetRecipeName() {
           py={2}
           px={2}
           _hover={{
-            background: useColorModeValue("brand.400", "brand.600")
+            background: useColorModeValue("brand.200", "brand.600")
           }}
         />
       </Tooltip>
@@ -239,7 +243,13 @@ function GetRecipeName() {
       </FormErrorMessage>
       <EditableControls />
     </Editable>
-    <Input placeholder="Recipe Media" type={'file'} {...register('recipeImage')} variant='flushed' isInvalid={false} />
+    <IconButton icon={<FaImage />} onClick={imageUpload}
+      bg='brand.400' color='brand.600' border='1px' borderColor={'brand.400'} boxShadow={'md'} _hover={{ bg: 'brand.200'}} />
+    <Input type={'file'} style={{ display: 'none' }} accept='image/*' {...fields}
+      ref={(instance) => {
+        ref(instance)
+        hiddenFileInput.current = instance
+      }} />
     </Container>
   )
 }
@@ -259,7 +269,7 @@ function GetDescription() {
           py={2}
           px={2}
           _hover={{
-            background: useColorModeValue("brand.400", "brand.600")
+            background: useColorModeValue("brand.200", "brand.600")
           }}
         />
       </Tooltip>
@@ -284,7 +294,7 @@ const GetIngredients = () => {
     return (
       <>
       <Tooltip label="Name of the ingredient">
-        <Input py={2} px={2} placeholder="...name, eg. eggs, large" variant={'flushed'} isInvalid={false}
+        <Input py={2} px={2} placeholder="...name, eg. eggs" variant={'flushed'} isInvalid={false}
         {...register(`ingredients[${index}].name`, {required: 'Give the ingredient a name'})} />
       </Tooltip>
       {errors.ingredients && errors.ingredients[index] && errors.ingredients[index].name && (
@@ -301,7 +311,7 @@ const GetIngredients = () => {
     return (
       <>
       <Tooltip label="Add the quantity of the ingredient">
-        <Input py={2} px={2} placeholder="...amount, eg. 2" variant={'flushed'} isInvalid={false}
+        <Input py={2} px={2} placeholder="...amount, eg. 2, large" variant={'flushed'} isInvalid={false}
         {...register(`ingredients[${index}].quantity`, {required: 'Give the ingredient a quantity'})} />
       </Tooltip>
       {errors.ingredients && errors.ingredients[index] && errors.ingredients[index].quantity && (
@@ -317,7 +327,7 @@ const GetIngredients = () => {
   function GetIngredientMeta({ index }) {
     return (
       <Tooltip label="How does this ingredient affect the taste of the recipe?">
-        <Textarea py={2} px={2} placeholder="...ingredient's meta, eg. I use brown eggs from free roam chickens" variant={'flushed'} isInvalid={false}
+        <Textarea py={2} px={2} placeholder="...ingredient's meta, eg. I use organic free roam eggs" variant={'flushed'} isInvalid={false}
         {...register(`ingredients[${index}].ingredientMeta`)} />
       </Tooltip>
     )
@@ -325,11 +335,19 @@ const GetIngredients = () => {
 
   // Function to get a picture of the ingredient
   function GetImage({ index }) {
+    const { ref, ...fields } = register(`ingredients[${index}].image`)
+    const hiddenFileInput = useRef(null);
+    const imageUpload = event => { hiddenFileInput.current?.click() }
     return (
-      <Tooltip label="Add an image of the ingredient">
-        <Input py={2} px={2} type='file' variant={'flushed'} isInvalid={false}
-        {...register(`ingredients[${index}].image`)} />
-      </Tooltip>
+      <>
+      <IconButton icon={<FaImage />} onClick={imageUpload} 
+        bg='brand.400' color='brand.600' border='1px' borderColor={'brand.400'} boxShadow={'md'} _hover={{ bg: 'brand.200'}} />
+      <Input py={2} px={2} style={{ display: 'none'}} accept='image/*' {...fields}
+        type='file' ref={(instance) => {
+          ref(instance)
+          hiddenFileInput.current = instance
+        }} />
+      </>
     )
   }
 
@@ -414,21 +432,37 @@ const GetSteps = () => {
 
   // Function to get the image of the action
   function GetActionImage({ index }) {
+    const { ref, ...fields } = register(`steps[${index}].actionImage`)
+    const hiddenFileInput = useRef(null);
+    const imageUpload = event => { hiddenFileInput.current?.click() }
     return (
-      <Tooltip label="Add an image of the action">
-        <Input py={2} px={2} placeholder="...image" type='file' variant={'flushed'} isInvalid={false}
-        {...register(`steps[${index}].actionImage`)} />
-      </Tooltip>
+      <>
+      <IconButton icon={<FaImage />} onClick={imageUpload}
+        bg='brand.400' color='brand.600' border='1px' borderColor={'brand.400'} boxShadow={'md'} _hover={{ bg: 'brand.200'}} />
+      <Input type='file' variant={'flushed'} isInvalid={false} style={{ display: 'none'}}
+        {...fields} ref={(instance) => {
+          ref(instance)
+          hiddenFileInput.current = instance
+        }} />
+      </>
     )
   }
 
   // Function to get the image of the trigger
   function GetTriggerImage({ index }) {
+    const { ref, ...fields } = register(`steps[${index}].triggerImage`)
+    const hiddenFileInput = useRef(null);
+    const imageUpload = event => { hiddenFileInput.current.click() }
     return (
-      <Tooltip label="Add an image of the trigger">
-        <Input py={2} px={2} placeholder="...image" type='file' variant={'flushed'} isInvalid={false}
-        {...register(`steps[${index}].triggerImage`)} />
-      </Tooltip>
+      <>
+      <IconButton icon={<FaImage />} onClick={imageUpload}
+        bg='brand.400' color='brand.600' border='1px' borderColor={'brand.400'} boxShadow={'md'} _hover={{ bg: 'brand.200'}} />
+      <Input type='file' style={{ display: 'none'}}
+        {...fields} ref={(instance) => {
+          ref(instance)
+          hiddenFileInput.current = instance
+        }} />
+      </>
     )
   }
 
@@ -525,7 +559,7 @@ function GetEquipment() {
             py={2}
             px={2}
             _hover={{
-              background: useColorModeValue("brand.400", "brand.600")
+              background: useColorModeValue("brand.200", "brand.600")
             }}
           />
         </Tooltip>

@@ -1,9 +1,9 @@
 import fleek from '@fleekhq/fleek-storage-js'
-
-const fleekStorageKey = process.env.REACT_APP_FLEEK_STORAGE_KEY
-const fleekStorageSecret = process.env.REACT_APP_FLEEK_STORAGE_SECRET
+require('dotenv').config( { path: 'cookbook/packages/react-app/.env' } )
 
 const useFleekStorage = () => {
+  const fleekStorageKey = process.env.REACT_APP_FLEEK_STORAGE_KEY
+  const fleekStorageSecret = process.env.REACT_APP_FLEEK_STORAGE_SECRET
   // List all files for the current user
   async function listFiles() {
     const input = {
@@ -17,13 +17,17 @@ const useFleekStorage = () => {
         'publicUrl'
       ],
     };
-  
-    const result = await fleek.listFiles(input);
-    return result;
+    try {
+      const result = await fleek.listFiles(input);
+      return result;
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   // Get all data for a user
   async function fleekStorageGet(key) {
+    try {
     const myRecipe = await fleek.get({
       apiKey: fleekStorageKey,
       apiSecret: fleekStorageSecret,
@@ -33,22 +37,30 @@ const useFleekStorage = () => {
       ],
     })
     return myRecipe
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   // Get data from hash
   async function fleekStorageGetByHash(hash) {
     const input = { hash };
-    const result = await fleek.getFileFromHash(input);
-    return result
+    try {
+      const result = await fleek.getFileFromHash(input);
+      return result
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   // Upload recipe to Fleek Storage in the user's bucket
+  // @param recipe: { userId, cookbookId, name, recipeImageURL, description, ingredients, steps, metaQualityTags, equipment }
   async function fleekStorageUploadRecipeData(recipe){
-    let data = JSON.stringify(recipe)
-    let input = {
+    const data = JSON.stringify(recipe)
+    const input = {
       apiKey: fleekStorageKey,
       apiSecret: fleekStorageSecret,
-      key: `${recipe.userId}/${recipe.cookbookId}/${recipe.name}/${recipe.name}`,
+      key: `${recipe.userId}/${recipe.cookbookId}/${recipe.name}`,
       ContentType: 'application/json',
       data: data,
     }
@@ -61,39 +73,31 @@ const useFleekStorage = () => {
   }
 
   // Upload images in the recipe to the fleek storage's recipe bucket
-  async function fleekStorageUploadRecipeImages(imageInfo, recipeName, userId, cookbookId){
-    let promises = []
-    for (let i = 0; i < imageInfo.length; i++) {
-      let data = imageInfo[i].image
-      let input = {
-        apiKey: fleekStorageKey,
-        apiSecret: fleekStorageSecret,
-        key: `${userId}/${cookbookId}/${recipeName}/images/${imageInfo[i].type}/${imageInfo[i].name}`,
-        ContentType: imageInfo[i].image.type,
-        data: data,
-      }
-      let upload = await fleek.upload(input)
-      promises.push({ imageName: imageInfo[i].name, upload })
-    }
-    return promises
-  }
-
-  // Save recipe and image hashes to fleek storage under user profile
-  async function fleekStorageSaveToProfile(recipeName, recipeHash, imageHashes, metaQualityTags, userId){
-    let data = { recipeName, recipeHash, imageHashes, metaQualityTags }
-    let uploadData = JSON.stringify(data)
+  // @param imageInfo: { imageName, type } - carries the image placement info and location in recipe
+  // @param image - the image to upload
+  // @param recipeName - the name of the recipe
+  // @param userId - user account data
+  // @param cookbookId - the id of the cookbook token
+  async function fleekStorageUploadRecipeImage(imageInfo, image, recipeName, userId, cookbookId){
+    console.log('uploading image')
+    let data = image
     let input = {
       apiKey: fleekStorageKey,
       apiSecret: fleekStorageSecret,
-      key: `${userId}/profile/${recipeName}`,
-      ContentType: 'application/json',
-      data: uploadData
+      key: `${userId}/${cookbookId}/${recipeName}/images/${imageInfo.type}/${imageInfo.name}`,
+      ContentType: data.type,
+      data: data,
     }
-    const save = await fleek.upload(input)
-    return save
+    try {
+      let upload = await fleek.upload(input)
+      console.log('upload: ', upload)
+      return upload
+    } catch (error) {
+      console.log('error: ', error)
+    }
   }
 
-  return [listFiles, fleekStorageGet, fleekStorageGetByHash, fleekStorageUploadRecipeData, fleekStorageUploadRecipeImages, fleekStorageSaveToProfile]
+  return [listFiles, fleekStorageGet, fleekStorageGetByHash, fleekStorageUploadRecipeData, fleekStorageUploadRecipeImage]
 }
 
 export default useFleekStorage
